@@ -1,0 +1,38 @@
+# Notas para aclarar algunas cosas.
+
+##
+
+Para que un proyecto de Python sea más sencillo de desarrollar y desplegar con las mismas versiones de paquetes
+para los que se desarrollo se usa Pipenv. El Pipfile que acompaña al proyecto indica las dependencias para desarrollar
+y desplegar el programa. Usando los comandos de pipenv es sencillo instalar todo lo necesario de una sola vez.
+
+## Entidades
+
+Aunque hay pocas entidades como para ponerlas en un solo archivo entities.py, ese archivo esta dentro del directorio
+entities/ para mantener la misma estructura de directorios que con los otros componentes de la arquitectura.
+
+Así, si el número de entidades creciera, sería sencillo ponerlas en diferentes módulos dentro de entities/.
+
+En todo caso, para facilitar el acceso a las entidades, entities/__init__.py importa el contenido de
+entities/entities.py en paquete 'entities'. Así a los badges se puede acceder como entities.Badge y no como
+entities.entities.Badge.
+
+## Servicios
+
+Son el nivel aplicación. Donde se implementan los casos de uso como "crear un badge" o "list todos los que hay".
+
+El problema es que crear un badge necesita persistencia y eso es parte de la ultima capa, las de infraestructura.
+Sin embargo, los niveles interiores no deben depender de los exteriores. Entonces ¿cómo lo hacemos para un servicio
+use un adaptador sin depende de él? Usamos inyección de dependencias con el paquete punq.
+
+En badge_service.py indico que la clase depende de EntityRepositoryPort. EntityRepositoryPort es una clase abstract.
+Ninguno de sus métodos está implementado pero es que la idea de la inyección de dependencias es que automáticamente
+se inyecte alguna clase que implemente EntityRepositoryPort. Por ejemplo, EntityJsonRepositoryAdapter. Esa es la magia
+de punq, que veremos más tarde
+
+## Configuración
+
+## Metadatos
+
+Verás que los archivos tienen información sobre el autor, licencia, fecha. Lo usual en Python es indicar así el autor.
+Algunos editores se pueden configurar para que lo hagan automáticamente.
