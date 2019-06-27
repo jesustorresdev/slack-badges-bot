@@ -1,4 +1,4 @@
-"""Interfaces de los repositorios para la persistencia de datos
+"""Interfaces de los repositorios para la persistencia de datos.
 """
 import abc
 

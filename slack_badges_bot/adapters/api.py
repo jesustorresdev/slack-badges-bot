@@ -1,7 +1,6 @@
-"""Servicio web de gestión de la aplicación
+"""Servicio web de gestión de la aplicación.
 """
 from aiohttp import web
-
 import json
 
 from slack_badges_bot.services.badge import BadgeService
@@ -22,7 +21,7 @@ class WebService:
         self._setup_routes()
 
     async def create_badge(self, request):
-        # TODO: Comprobar argumentos en requests y añadir manejo de errores y excepciones
+        # TODO: Comprobar argumentos en request y añadir manejo de errores y excepciones
         self.badge_service.create(name=request.query['name'], description=request.query['description'],
                                   criteria=request.query['criteria'], image=request.query['image'])
         return web.Response(text=json.dumps({'status': 'success'}), status=200)
@@ -31,8 +30,7 @@ class WebService:
         # TODO: Estudiar si es conveniente que este runner maneje las señales del sistema
         runner = web.AppRunner(self.app)
         await runner.setup()
-        # TODO: Incluir configuración del host y del puerto: host=None, Port=None
-        site = web.TCPSite(runner)
+        site = web.TCPSite(runner, host=self.config['HTTP_HOST'], port=self.config['HTTP_PORT'])
         await site.start()
 
         # site se ejecuta de forma ininterrumpida. Limpiar runner cuando site se detenga definitivamente.
