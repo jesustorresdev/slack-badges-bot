@@ -1,7 +1,7 @@
 """Servicios para gestionar las insignias (badges)
 """
 from slack_badges_bot.entities import EntityID, Badge
-from slack_badges_bot.ports.entity_repository import EntityRepositoryPort
+from slack_badges_bot.services.repositories import EntityRepository
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
@@ -11,7 +11,7 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 class BadgeService:
 
-    def __init__(self, badge_repository: EntityRepositoryPort):
+    def __init__(self, badge_repository: EntityRepository):
         self.badge_repository = badge_repository
 
     def create(self, name, description, criteria, image):

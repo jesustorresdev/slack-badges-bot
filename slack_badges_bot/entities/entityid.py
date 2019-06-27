@@ -9,6 +9,11 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 
 class EntityID(UUID):
+    """Identificador de entidades.
+    """
+
+    def __str__(self):
+        return self.hex
 
     @classmethod
     def generate_unique_id(cls):

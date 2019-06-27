@@ -1,4 +1,4 @@
-"""Definición de las entidades del dominio.
+"""Definición de las entidades de la aplicación.
 """
 from dataclasses import dataclass
 from typing import List
