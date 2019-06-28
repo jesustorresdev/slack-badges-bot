@@ -308,7 +308,20 @@ Además, como solo hay una aplicación, no hace falta al AppRunner, que era para
 nuestro propio bucle de mensajes que también manejara RTMClient. Ahora todo está en manos de web.Application y
 del bucle que crea web.run_app()
 
-En este módulo se crea una web.Application y tanto WebService como SlackApplication se añaden como subaplicaciones. 
+En este módulo se crea una web.Application y tanto WebService como SlackApplication se añaden como subaplicaciones.
+
+## OpenBadges
+
+OpenBadges por un lado espera que se exponga una API en una URL y por el otro espera que le hagas peticiones a su API.
+
+Lo primero es similar tanto a lo del api.Webservice como a lo de slack.SlackApplication.
+
+Lo segundo se puede hacer con el módulo request, como he visto en lo que has programado pero ojo, request es una
+librería bloqueante (síncrona) y nosotros estamos haciendo todo de forma asíncrona con asyncio y AIOHttp. Por suerte
+AIOHttp es tanto un servidor HTTP (que es lo que hemos usado hasta ahora) como un cliente HTTP. 
+
+Por eso slackclient usa AIOHttp. Slackclient usa AIOHttp como cliente para hacer peticiones. Bien pues para el
+adaptador a OpenBadges deberías crear tu OpenBadgesClient asíncrono usando AIOHttp para implementarlo.  
 
 ## Configuración
 
