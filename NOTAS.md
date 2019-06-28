@@ -323,6 +323,13 @@ AIOHttp es tanto un servidor HTTP (que es lo que hemos usado hasta ahora) como u
 Por eso slackclient usa AIOHttp. Slackclient usa AIOHttp como cliente para hacer peticiones. Bien pues para el
 adaptador a OpenBadges deberías crear tu OpenBadgesClient asíncrono usando AIOHttp para implementarlo.  
 
+## Inyección de dependencias
+
+Como hemos hablado antes, para que la aplicación no tenga dependencias con los adaptadores se usa inyección de
+dependencias. Puedes mirar la documentación de punq para que ves como funciona.
+
+Obviamente la inyección se configura en app.py, justo antes de arrancar la aplicación.
+
 ## Configuración
 
 El proveedor de configuración también es un servicio. En esta caso le he indicado que herede UserDict para que comporte
