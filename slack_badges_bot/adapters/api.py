@@ -26,15 +26,5 @@ class WebService:
                                   criteria=request.query['criteria'], image=request.query['image'])
         return web.Response(text=json.dumps({'status': 'success'}), status=200)
 
-    async def start(self):
-        # TODO: Estudiar si es conveniente que este runner maneje las señales del sistema
-        runner = web.AppRunner(self.app)
-        await runner.setup()
-        site = web.TCPSite(runner, host=self.config['HTTP_HOST'], port=self.config['HTTP_PORT'])
-        await site.start()
-
-        # site se ejecuta de forma ininterrumpida. Limpiar runner cuando site se detenga definitivamente.
-        await runner.cleanup()
-
     def _setup_routes(self):
         self.app.router.add_post('/badges/create', self.create_badge)

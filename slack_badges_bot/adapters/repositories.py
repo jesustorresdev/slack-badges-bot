@@ -20,7 +20,7 @@ class EntityJsonRepository(EntityRepository):
     """
     FILENAME_TEMPLATE = '{id}.json'
 
-    def __init__(self, path: Path, entity_type):
+    def __init__(self, path, entity_type):
         self.path = path
         self.entity_type = entity_type
 

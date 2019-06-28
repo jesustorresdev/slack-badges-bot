@@ -76,6 +76,53 @@ para los puertos secundarios es lo más común para aprovechar la inyección de 
 api.WebService es un adaptador primario que recibe varios servicios que necesita. El constructor crea la web.Application
 de aiohttp y configura las rutas llamando a self._setup_routes.
 
+Te pego el código del que hablo porque, como verás después, al hacer la parte de Slack he optado por una forma que
+hace que la clase WebService no puede tener método start(). Asi que en el repositorio hay una versión algo diferente
+a la que te comento. 
+
+~~~
+"""Servicio web de gestión de la aplicación.
+"""
+from aiohttp import web
+import json
+
+from slack_badges_bot.services.badge import BadgeService
+from slack_badges_bot.services.config import ConfigService
+
+__author__ = 'Jesús Torres'
+__contact__ = "jmtorres@ull.es"
+__license__ = "Apache License, Version 2.0"
+__copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
+
+
+class WebService:
+
+    def __init__(self, config: ConfigService, badge_service: BadgeService):
+        self.config = config
+        self.badge_service = badge_service
+        self.app = web.Application()
+        self._setup_routes()
+
+    async def create_badge(self, request):
+        # TODO: Comprobar argumentos en request y añadir manejo de errores y excepciones
+        self.badge_service.create(name=request.query['name'], description=request.query['description'],
+                                  criteria=request.query['criteria'], image=request.query['image'])
+        return web.Response(text=json.dumps({'status': 'success'}), status=200)
+
+    async def start(self):
+        # TODO: Estudiar si es conveniente que este runner maneje las señales del sistema
+        runner = web.AppRunner(self.app)
+        await runner.setup()
+        site = web.TCPSite(runner, host=self.config['HTTP_HOST'], port=self.config['HTTP_PORT'])
+        await site.start()
+
+        # site se ejecuta de forma ininterrumpida. Limpiar runner cuando site se detenga definitivamente.
+        await runner.cleanup()
+
+    def _setup_routes(self):
+        self.app.router.add_post('/badges/create', self.create_badge)
+~~~
+
 La única ruta que he puesto indica que un POST HTTP a /badges/create debe crear un badge con los parámetros enviados
 en la petición. Esos parámetros recibido por AIOHttp se recuperan con request.query('algo').
 
@@ -86,7 +133,7 @@ ni aunque el cliente del API lo hagamos nosotros mismos. Hay que comprobar que l
 argumento obligatorio de create().
 
 Si estuviéramos haciendo una aplicación normal, WebServices tendría que tener un método start() que llame a
-app.run_app(). Pero no podemos hacer eso porque esa es una llamada bloqueante. Es decir, entra en un bucle infinito
+web.run_app(app). Pero no podemos hacer eso porque esa es una llamada bloqueante. Es decir, entra en un bucle infinito
 donde se reciben eventos de la API y se atienden. El problema es que eso es incompatible con el API cliente de Slack
 que tiene sus propios eventos y necesita su propio bucle de mensajes.
 
@@ -251,7 +298,22 @@ Bueno, en el nuevo slack.SlackApplication se ve la idea. En este caso no se usa 
 son inmeditas. Si, por ejemplo, usáramos una base de datos, deberíamos usar una librería de base de datos asíncrona
 y await por todos lados.
 
+El asunto es que ahora tenemos dos aplicaciones AIOHttp que deben funcionar el mismo servidor y puerto. En realidad,
+que deben funcionar en la misma aplicación AIOHttp. No tiene sentido SlackApplication y WebService tengan cada uno
+su start() porque en realidad deberíamos de integrarlas para que funcionen como la misma web.Application, solo que
+en URL que no entren en conflicto. Por eso he quitado el start() a api.WebService y he puesto parte de su código
+en el modulo app.py. Ese será el módulo principal de la aplicación.
+
+Además, como solo hay una aplicación, no hace falta al AppRunner, que era para poder crear 
+nuestro propio bucle de mensajes que también manejara RTMClient. Ahora todo está en manos de web.Application y
+del bucle que crea web.run_app()
+
+En este módulo se crea una web.Application y tanto WebService como SlackApplication se añaden como subaplicaciones. 
+
 ## Configuración
+
+El proveedor de configuración también es un servicio. En esta caso le he indicado que herede UserDict para que comporte
+como un diccionario. Así es más sencillo acceder a las variables de configuración.
 
 ## Metadatos
 
