@@ -1,10 +1,13 @@
 # Notas para aclarar algunas cosas.
 
-##
+## Pipenv
 
 Para que un proyecto de Python sea más sencillo de desarrollar y desplegar con las mismas versiones de paquetes
 para los que se desarrollo se usa Pipenv. El Pipfile que acompaña al proyecto indica las dependencias para desarrollar
 y desplegar el programa. Usando los comandos de pipenv es sencillo instalar todo lo necesario de una sola vez.
+
+Por ejemplo, nada más descargar el proyecto, con `pipenv install` obtendrás los paquetes que necesitas en las mismas
+versiones que he usado yo. 
 
 ## Entidades
 
