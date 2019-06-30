@@ -1,11 +1,11 @@
 """Definición de las entidades de la aplicación.
 """
 from dataclasses import dataclass
-from typing import List
 from datetime import datetime
 from pathlib import Path
+from typing import List
 
-from slack_badges_bot.entities import EntityID
+from slack_badges_bot.entities.entityid import EntityID
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"

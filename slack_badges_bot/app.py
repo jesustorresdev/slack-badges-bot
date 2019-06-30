@@ -1,29 +1,48 @@
 """Punto de entrada de la aplicación
 """
 import punq
+import os
 
 from aiohttp import web
+from pathlib import Path
 
-from slack_badges_bot import adapters, services
-from slack_badges_bot.adapters import api, slack
+from slack_badges_bot import adapters, entities, services
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
 __license__ = "Apache License, Version 2.0"
 __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
-config = services.config.ConfigReader
+config = services.config.ConfigService()
+config.from_object('slack_badges_bot.settings.DefaultConfig')
 
 # Inyección de dependencias
+a = adapters.repositories.EntityJsonRepository
 container = punq.Container()
-container.register(services.config.ConfigService, config)
-container.register(services.repositories.EntityRepository, adapters.repositories.EntityJsonRepository)
+
+container.register(services.config.ConfigService, instance=config)
+container.register(services.badge.BadgeService)
+
+container.register(services.repositories.EntityRepositoryFactory)
+container.register(services.repositories.EntityRepository, adapters.repositories.EntityJsonRepository,
+                   stored_type=entities.Badge, path=config.option_as_path('DATA_PATH') / 'badges')
 
 
 def init_app(argv):
-    app = web.Application(debug=config['DEBUG'])
-    app.add_subapp('/api', api.WebService)
-    app.add_subapp('/slack', slack.SlackApplication)
+    if config['DEBUG']:
+        # Activar el modo de depuración de asyncio.
+        os.environ['PYTHONASYNCIODEBUG'] = "1"
+        # TODO: Configurar el logger a nivel logging.DEBUG
+
+    app = web.Application()
+    app.add_subapp('/api', adapters.api.WebService(
+        config=config,
+        badge_service=container.resolve(services.badge.BadgeService)
+    ).app)
+    app.add_subapp('/slack', adapters.slack.SlackApplication(
+        config=config,
+        badge_service=container.resolve(services.badge.BadgeService)
+    ).app)
     return app
 
 

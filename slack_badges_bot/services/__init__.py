@@ -1,5 +1,1 @@
-__all__ = [
-    'badge',
-    'config',
-    'repositories',
-]
+from . import badge, config, repositories

@@ -1,7 +1,8 @@
 """Servicio web de gestión de la aplicación.
 """
-from aiohttp import web
 import json
+
+from aiohttp import web
 
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.config import ConfigService

@@ -330,12 +330,50 @@ dependencias. Puedes mirar la documentación de punq para que ves como funciona.
 
 Obviamente la inyección se configura en app.py, justo antes de arrancar la aplicación.
 
+Un detalle con la inyección es que a veces hay que usarla más de lo necesario. Por ejemplo, sabemos que existe esta
+cadena de dependencias:
+
+~~~
+api.WebService <-- BadgeService <-- EntityRepository
+~~~
+
+Como lo que debemos evitar es que los componentes de la capa de aplicación dependen de los de infraestructuras,
+la dependencia complicada es la de `BadgeService <-- EntityRepository`. Por tanto, la debemos usar la inyección
+de dependencias para que `EntityRepository` se inyecte en `BadgeService`. Pero para eso ambas clases deben ser
+registradas en el contenedor y si queremos un objeto `BadgeService` hay que obtenerlo con `container.resolve()`.
+Así cuando el contenedor instancia `BadgeService` lo hace resolviendo sus dependencias.
+
+Por eso para crear el `api.WebService` se hace así:
+
+~~~
+subapp = api.WebService(config=config, badge_service=container.resolve(services.badge.BadgeService)
+~~~
+
+api.WebService no es necesario que lo registremos porque no nos importa que dependa explícitamente de componentes
+de la aplicación.
+
 ## Configuración
 
-El proveedor de configuración también es un servicio. En esta caso le he indicado que herede UserDict para que comporte
+El proveedor de configuración también es un servicio. En esta caso le he indicado que herede dict para que comporte
 como un diccionario. Así es más sencillo acceder a las variables de configuración.
+
+El servicio carga la configuración por defecto desde `settings.py` y se inyecta en el servicio que lo necesite.
+
+Ojo porque las rulas relativas siempre lo son respecto al directorio actual de trabajo de la aplicación.
 
 ## Metadatos
 
 Verás que los archivos tienen información sobre el autor, licencia, fecha. Lo usual en Python es indicar así el autor o
 autores. Algunos editores se pueden configurar para que lo hagan automáticamente.
+
+## Postman
+
+¿Cómo depurar que una API funciona? Hacer un GET a `/badges/create` es tan simple como poner la URL en el navegador.
+Pero ¿cómo hacer una petición POST? ¿y cómo codificar los parámetros?. Te recomiendo instalarte Postman. Es una
+herramienta estupenda para probar las API, ver si funcionan y qué devuelven.
+
+## Bola extra
+
+Python sigue una guía de estilo bastante estricta llamada PEP8. Puedes buscarla pero lo que ayuda es usar un editor que
+te avisa cuando la incumples. Yo uso PyCharm. Entre otras cosas porque permite lanzar la aplicación y depurarla. Con
+la cuenta @ull.edu.es es gratuito. 

@@ -1,5 +1,1 @@
-__all__ = [
-    'api',
-    'repositories',
-    'slack',
-]
+from . import api, repositories, slack
