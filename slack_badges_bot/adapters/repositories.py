@@ -23,6 +23,8 @@ def json_dump_default(o):
     """
     if isinstance(o, uuid.UUID):
         return o.urn
+    if isinstance(o, Path):
+        return str(o)
     raise TypeError()
 
 
@@ -32,7 +34,7 @@ def json_load_object_hook(d):
     Añade soporte para atributos UUID en la decodificación de JSON. Se espera que estos atributos hayan sido codificados
     en formato URN.
     """
-    return {key: uuid.UUID(value) if value.startswith("urn:uuid:") else value for key, value in d.items()}
+    return {key: uuid.UUID(value) if str(value).startswith("urn:uuid:") else value for key, value in d.items()}
 
 
 class EntityJsonRepository(EntityRepository):
@@ -60,7 +62,8 @@ class EntityJsonRepository(EntityRepository):
     def load(self, id):
         filepath = self._build_filepath(id)
         with filepath.open("r") as f:
-            return self.stored_type(**json.load(f, object_hook=json_load_object_hook))
+            json_loaded = json.load(f, object_hook=json_load_object_hook)
+            return self.stored_type(**json_loaded)
 
     def get_all_ids(self):
         return [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*'))]

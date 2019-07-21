@@ -19,14 +19,14 @@ config.from_object('slack_badges_bot.settings.DefaultConfig')
 # Inyección de dependencias
 a = adapters.repositories.EntityJsonRepository
 container = punq.Container()
-
 container.register(services.config.ConfigService, instance=config)
 container.register(services.badge.BadgeService)
 
 container.register(services.repositories.EntityRepositoryFactory)
 container.register(services.repositories.EntityRepository, adapters.repositories.EntityJsonRepository,
                    stored_type=entities.Badge, path=config.option_as_path('DATA_PATH') / 'badges')
-
+# TODO: registrar repositorios de awards, persons e issuer
+# --> https://punq.readthedocs.io/en/latest/ ejemplo del Authenticator
 
 def init_app(argv):
     if config['DEBUG']:
@@ -48,7 +48,6 @@ def init_app(argv):
 
 def run_app():
     web.run_app(init_app([]), host=config['HTTP_HOST'], port=config['HTTP_PORT'])
-
 
 if __name__ == '__main__':
     run_app()
