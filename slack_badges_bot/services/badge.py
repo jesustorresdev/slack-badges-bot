@@ -34,12 +34,12 @@ class BadgeService:
     def check_if_exist(self, id):
         return self.badge_repository.check_if_exist(id)
 
-    def exists(self, badge_name):
+    def name_exists(self, badge_name):
         ids = self.retrieve_ids()
+        badge_name = badge_name.lower().replace(" ", "")
         for id in ids:
             badge = self.retrieve(id)
-            a = badge.name.lower().replace(" ", "")
-            b = badge_name.lower().replace(" ", "")
-            if a == b:
+            retrieved_badge_name = badge.name.lower().replace(" ", "")
+            if badge_name == retrieved_badge_name:
                 return True
         return False

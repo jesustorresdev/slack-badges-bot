@@ -20,6 +20,8 @@ def json_dump_default(o):
 
     Añade soporte para atributos UUID en la codificación a JSON. Estos atributos se codifican en formato URN para
     facilitar su identificación posterior a la hora de decodificarlos.
+
+    Añade soporte para atributos de tipo Path pasándolos a un string.
     """
     if isinstance(o, uuid.UUID):
         return o.urn
