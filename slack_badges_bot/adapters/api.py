@@ -45,7 +45,7 @@ class WebService:
                 raise TypeError("Name must be a string!")
             if len(badge_json["name"]) < self.config["BADGE_NAME_MIN_LENGTH"]:
                 raise TypeError("Name must have more characters!")
-            if self.badge_service.exists(badge_json["name"]):
+            if self.badge_service.name_exists(badge_json["name"]):
                 raise TypeError("Badge already exists!")
             if type(badge_json["description"]) is not str:
                 raise TypeError("Description must be a string!")
