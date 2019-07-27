@@ -15,6 +15,7 @@ from pathlib import Path
 
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.config import ConfigService
+from slack_badges_bot.adapters.errors import *
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
@@ -34,25 +35,25 @@ class WebService:
         try:
             # Comprobando cabecera
             if request.headers['Content-Type'] != 'application/json':
-                raise TypeError("Content-Type field of header must be application/json!")
+                raise BadgeCreateError("Content-Type field of header must be application/json!")
             # Comprobar errores en los campos de request
             badge_json = await request.json()
             expected = set(["name", "description", "criteria", "image_data"])
             received = set([key for key in badge_json])
             if expected != received:
-                raise TypeError("parameters missing!")
+                raise BadgeCreateError("parameters missing!")
             if type(badge_json["name"]) is not str:
-                raise TypeError("Name must be a string!")
+                raise BadgeCreateError("Name must be a string!")
             if len(badge_json["name"]) < self.config["BADGE_NAME_MIN_LENGTH"]:
-                raise TypeError("Name must have more characters!")
+                raise BadgeCreateError("Name must have more characters!")
             if self.badge_service.name_exists(badge_json["name"]):
-                raise TypeError("Badge already exists!")
+                raise BadgeCreateError("Badge already exists!")
             if type(badge_json["description"]) is not str:
-                raise TypeError("Description must be a string!")
+                raise BadgeCreateError("Description must be a string!")
             if len(badge_json["description"]) <  self.config['BADGE_DESCRIPTION_MIN_LENGTH']:
-                raise TypeError("Description must have more characters!")
+                raise BadgeCreateError("Description must have more characters!")
             if len(badge_json["criteria"]) < self.config['BADGE_MIN_CRITERIA']:
-                raise TypeError("You must supply more criteria!")
+                raise BadgeCreateError("You must supply more criteria!")
             # Comprobar errores en la imagen
             image_id = uuid.uuid4().hex
             image_path = f"../data/badges/{image_id}.png"
@@ -61,7 +62,7 @@ class WebService:
             with open(image_path, 'rb') as f:
                 if imghdr.what(f) != 'png':
                     os.remove(image_path)
-                    raise TypeError("Image is not a PNG!")
+                    raise BadgeCreateError("Image is not a PNG!")
             # Procesar la imagen y guardarla para pasar un Path
             self.badge_service.create(name=badge_json['name'], description=badge_json['description'],
                                       criteria=badge_json['criteria'], image=Path(image_path))
