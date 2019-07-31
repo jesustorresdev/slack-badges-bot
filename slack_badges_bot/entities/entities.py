@@ -1,15 +1,15 @@
 """Definición de las entidades de la aplicación.
 """
 import inspect
+import logging
 
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List
-from io import StringIO
+from typing import List, Union
+from io import BytesIO
 
 from slack_badges_bot.entities.entityid import EntityID
-from slack_badges_bot.entities.image import BadgeImage
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
@@ -28,31 +28,11 @@ class Badge:
     name: str
     description: str
     criteria: List[str]
-#https://blog.florimond.dev/reconciling-dataclasses-and-properties-in-python
-    image: BadgeImage # Llama al setter
-    _image: BadgeImage = field(init = False, repr = False)
+    image: Union[Path, str, BytesIO] # Llama al setter
+    image_type: str
 
-    @property
-    def image(self):
-        print(f'Badge.image.getter')
-        print(f'Llamado desde {inspect.stack()[1].filename}')
-        print(f'Llamado desde {inspect.stack()[1].lineno}')
-        print(f'Llamado desde {inspect.stack()[1].function}')
-        print(f'Llamado desde {inspect.stack()[1].code_context}')
-        return self._image.get()
-
-    @image.setter
-    def image(self, value):
-        print(f'Llamando a image.setter({value})')
-        print(f'Llamado desde {inspect.stack()[1].filename}')
-        print(f'Llamado desde {inspect.stack()[1].lineno}')
-        print(f'Llamado desde {inspect.stack()[1].function}')
-        print(f'Llamado desde {inspect.stack()[1].code_context}')
-        self._image = BadgeImage(value)
-
-    @property
-    def image_type(self):
-        self._image.get_type()
+    def __post_init__(self):
+        logging.debug(f'Created new Badge {self}')
 
 @dataclass
 class Award:
@@ -60,7 +40,3 @@ class Award:
     timestamp: datetime
     person: Person
     badge: Badge
-
-#if __name__ == '__main__':
-#    b = Badge(id=EntityID.generate_unique_id(), name="Pepe", description="Blabla", criteria=[], image="/tmp/prueba")
-#    print(b.image)

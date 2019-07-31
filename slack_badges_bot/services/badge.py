@@ -1,12 +1,15 @@
 """Servicios para gestionar las insignias (badges).
 """
 import inspect
+import logging
 
 from slack_badges_bot.entities import EntityID, Badge
 from slack_badges_bot.services.repositories import EntityRepositoryFactory
 from pathlib import Path
-from typing import List
+from typing import List, Union
 from io import BytesIO
+from PIL import Image
+from errors import *
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
@@ -20,19 +23,13 @@ class BadgeService:
 
     def create(self, name: str, description: str,
                 criteria: List[str], image: BytesIO):
-        print(f'Llamando a BadgeService.create({name})')
-        print(f'Llamado desde {inspect.stack()[1].filename}')
-        print(f'Llamado desde {inspect.stack()[1].lineno}')
-        print(f'Llamado desde {inspect.stack()[1].function}')
-        print(f'Llamado desde {inspect.stack()[1].code_context}')
+        logging.debug(f'LLAMADA a BadgeService.create({name})')
+        image_type = self.image_type(image)
         badge = Badge(id=EntityID.generate_unique_id(), name=name, description=description, criteria=criteria,
-                      image=image)
-        print(f'creado: {badge} con imagen {type(badge.image)}')
-# Poner id del badge en el png de la imagen
-        #badge.image.rename(badge.image.parent / f'{badge.id.hex}.png')
-        #badge.image = badge.image.parent/f'{badge.id.hex}.png'
+                      image=image, image_type=image_type)
+        logging.debug(f'CREADO: {badge}')
         self.badge_repository.save(badge)
-        print(f'guardado: {badge} con imagen {type(badge.image)}')
+        logging.debug(f'GUARDADO: {badge}')
 
     def retrieve(self, id):
         return self.badge_repository.load(id)
@@ -44,11 +41,7 @@ class BadgeService:
         return self.badge_repository.check_if_exist(id)
 
     def name_exists(self, badge_name):
-        print(f'comprobando si existe nombre {badge_name}')
-        print(f'Llamado desde {inspect.stack()[1].filename}')
-        print(f'Llamado desde {inspect.stack()[1].lineno}')
-        print(f'Llamado desde {inspect.stack()[1].function}')
-        print(f'Llamado desde {inspect.stack()[1].code_context}')
+        logging.debug(f'Comprobando si existe nombre {badge_name}')
 
         ids = self.retrieve_ids()
         badge_name = badge_name.lower().replace(" ", "")
@@ -56,7 +49,43 @@ class BadgeService:
             badge = self.retrieve(id)
             retrieved_badge_name = badge.name.lower().replace(" ", "")
             if badge_name == retrieved_badge_name:
-                print(f'{badge_name} existe!')
+                logging.debug(f'{badge_name} existe!')
                 return True
-        print(f'{badge_name} no existe')
+        logging.debug(f'{badge_name} no existe')
         return False
+
+    def open_image(self, image: Union[str, BytesIO]) -> BytesIO:
+        '''
+        Método para leer la imagen. Si recibe un str abre la imagen,
+        si recibe un BytesIO es que la imagen ya estaba abierta y lo devuelve
+        '''
+        fileformat = 'file://'
+        if image.startswith(fileformat):
+            image = image.replace(fileformat, '')
+            with open(image, 'rb') as f:
+                image_bytes = BytesIO(f.read())
+        else:
+            image_bytes = None
+            raise TypeError(f'BadgeService.open_image: format not recognized')
+        return image_bytes
+
+    def image_type(self, image_bytes: BytesIO) -> str:
+        assert isinstance(image_bytes, BytesIO),\
+            'BadgeService.image_type: image is not an instance of BytesIO'
+        return str(Image.open(image_bytes).format).lower()
+
+    def validate_image(self, image_bytes: BytesIO) -> bool:
+        #https://openbadges.org/developers/#badge-images
+        assert isinstance(image_bytes, BytesIO),\
+            'BadgeService.image_type: image is not an instance of BytesIO'
+        image = Image.open(image_bytes)
+        if str(image.format).lower() not in ['png', 'svg']:
+            raise BadgeImageError(f'Image must be png or svg ({image.format})')
+        width, height = image.size
+        if width != height: #images should be square
+            raise BadgeImageError(f'Image must be squared ({width}x{height} px)')
+        if image_bytes.getbuffer().nbytes > 256*1024: #not exceed 256kb
+            raise BadgeImageError(f'Image must be 256kb or less ({image_bytes.nbytes}kb)')
+        if width < 90: #not smaller than 90 x 90px
+            raise BadgeImageError(f'Image must be bigger than 90 x 90 px ({width}x{height} px)')
+        return True

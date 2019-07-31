@@ -5,6 +5,7 @@ import logging
 import uuid
 import imghdr
 import base64
+import binascii
 import traceback
 import sys
 import os
@@ -42,15 +43,11 @@ class WebService:
             # Validar
             self.create_badge_validation(request.headers, request_json)
             # Decodificar imagen
-            image = request_json['image']
-            if self.validated_encoding == BASE64:
-                image_bytes = self.b64tobytes(image)
-            elif self.validated_encoding == URL:
-                image_bytes = self.urltobytes(image)
-            print(f'Request validada y el tipo de image es {self.validated_encoding}')
+            #if not self.badge_service.image_is_valid(image_bytes): # TODO: meter esto en el método de validacion sin repetir lo de arriba
+            #    raise BadgeCreateError("Not a valid badge image")
             # Crear medalla
             self.badge_service.create(name=request_json['name'], description=request_json['description'],
-                                      criteria=request_json['criteria'], image=image_bytes)
+                                      criteria=request_json['criteria'], image=self.validated_image_bytes)
             # Respuesta
             return web.Response(text=json.dumps({'status': 'success'}), status=200)
         except Exception as error:
@@ -79,7 +76,13 @@ class WebService:
         self.validated_encoding = self.image_encoding(request_json['image'])
         if self.validated_encoding is None:
             raise BadgeCreateError(f'Image has not a valid encoding!')
-        return True
+        image = request_json['image']
+        if self.validated_encoding == BASE64:
+            self.validated_image_bytes = self.b64tobytes(image)
+        elif self.validated_encoding == URL:
+            self.validated_image_bytes = self.urltobytes(image)
+        if self.badge_service.validate_image(self.validated_image_bytes):
+            return True
 
     def image_encoding(self, image: str):
         assert isinstance(image, str), 'Not an instance of str'
@@ -92,9 +95,14 @@ class WebService:
 
     def isbase64(self, data: str):
         try:
-            base64.b64decode(data)
-            return True
-        except:
+            pattern = 'data:image\/[a-zA-Z]*;base64'
+            prefix, data = data.split(',')
+            if re.match(pattern, prefix):
+                base64.b64decode(data)
+                return True
+            else:
+                return False
+        except binascii.Error:
             return False
 
     def isurl(self, data: str):
@@ -102,7 +110,7 @@ class WebService:
         return re.match(pattern, data.strip())
 
     def b64tobytes(self, data: str):
-        return BytesIO(base64.b64decode(data))
+        return BytesIO(base64.b64decode(data.split(',')[-1]))
 
     def urltobytes(self, data: str):
         raise NotImplementedError

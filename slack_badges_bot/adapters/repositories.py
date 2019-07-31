@@ -8,6 +8,7 @@ import inspect
 
 from pathlib import Path
 from typing import Type
+from io import BytesIO
 
 from slack_badges_bot.services.repositories import EntityRepository
 from slack_badges_bot.entities.entities import Badge
@@ -57,26 +58,21 @@ class EntityJsonRepository(EntityRepository):
         return self._stored_type
 
     def save(self, entity, overwrite=False):
-        print(f'Llamando a EntityJsonRepository.save({entity})')
-        print(f'Llamado desde {inspect.stack()[1].filename}')
-        print(f'Llamado desde {inspect.stack()[1].lineno}')
-        print(f'Llamado desde {inspect.stack()[1].function}')
-        print(f'Llamado desde {inspect.stack()[1].code_context}')
         if isinstance(entity, Badge):
-            print(f'Guardando: {entity}')
-            print(f'Imagen: {entity.id.hex}.{entity.image_type}')
-            image_filepath = self._build_filepath(entity.id.hex, entity.image_type)
-            print(f'imagen guardada en: {image_filepath}')
-            with image_filepath.open('wb') as f:
-                f.write(entity.image.read())
-            entity.image = image_filepath
-        print(f'Nueva entidad: {entity}')
+            if isinstance(entity.image, BytesIO):
+                logging.debug(f'EntityJSONRepository.save: {entity.image}')
+                image_filepath = self._build_filepath(entity.id.hex, entity.image_type)
+                with image_filepath.open('wb') as f:
+                    entity.image.seek(0)
+                    f.write(entity.image.read())
+                entity.image = 'file://' + str(image_filepath)
         filepath = self._build_filepath(entity.id.hex, 'json')
         mode = "w" if overwrite else "x"
         with filepath.open(mode) as f:
             json.dump(dataclasses.asdict(entity), f, default=json_dump_default)
 
     def load(self, id):
+        logging.debug(f'EntityJSONRepository.load({id})')
         filepath = self._build_filepath(id, 'json')
         with filepath.open("r") as f:
             json_loaded = json.load(f, object_hook=json_load_object_hook)
