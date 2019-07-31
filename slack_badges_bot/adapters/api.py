@@ -42,9 +42,6 @@ class WebService:
             request_json = await request.json()
             # Validar
             self.create_badge_validation(request.headers, request_json)
-            # Decodificar imagen
-            #if not self.badge_service.image_is_valid(image_bytes): # TODO: meter esto en el método de validacion sin repetir lo de arriba
-            #    raise BadgeCreateError("Not a valid badge image")
             # Crear medalla
             self.badge_service.create(name=request_json['name'], description=request_json['description'],
                                       criteria=request_json['criteria'], image=self.validated_image_bytes)
