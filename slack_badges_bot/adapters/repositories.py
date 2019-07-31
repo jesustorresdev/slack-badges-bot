@@ -3,17 +3,19 @@
 import json
 import dataclasses
 import uuid
+import logging
+import inspect
 
 from pathlib import Path
 from typing import Type
 
 from slack_badges_bot.services.repositories import EntityRepository
+from slack_badges_bot.entities.entities import Badge
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
 __license__ = "Apache License, Version 2.0"
 __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
-
 
 def json_dump_default(o):
     """Función para pasar por el argumento default a la función json.dump().
@@ -27,8 +29,7 @@ def json_dump_default(o):
         return o.urn
     if isinstance(o, Path):
         return str(o)
-    raise TypeError()
-
+    raise TypeError(f'Unknown type of object {o}')
 
 def json_load_object_hook(d):
     """Función para pasar por el argumento object_hook a la función json.load() para añadir soporte para atributos UUID.
@@ -45,7 +46,7 @@ class EntityJsonRepository(EntityRepository):
     :param stored_type: Clase de la entidad almacenada en el repositorio.
     :param path: Ruta dónde almacenar los archivos.
     """
-    FILENAME_TEMPLATE = '{id}.json'
+    FILENAME_TEMPLATE = '{id}.{filetype}'
 
     def __init__(self, stored_type: Type, path: Path):
         self._stored_type = stored_type
@@ -56,23 +57,37 @@ class EntityJsonRepository(EntityRepository):
         return self._stored_type
 
     def save(self, entity, overwrite=False):
-        filepath = self._build_filepath(entity.id.hex)
+        print(f'Llamando a EntityJsonRepository.save({entity})')
+        print(f'Llamado desde {inspect.stack()[1].filename}')
+        print(f'Llamado desde {inspect.stack()[1].lineno}')
+        print(f'Llamado desde {inspect.stack()[1].function}')
+        print(f'Llamado desde {inspect.stack()[1].code_context}')
+        if isinstance(entity, Badge):
+            print(f'Guardando: {entity}')
+            print(f'Imagen: {entity.id.hex}.{entity.image_type}')
+            image_filepath = self._build_filepath(entity.id.hex, entity.image_type)
+            print(f'imagen guardada en: {image_filepath}')
+            with image_filepath.open('wb') as f:
+                f.write(entity.image.read())
+            entity.image = image_filepath
+        print(f'Nueva entidad: {entity}')
+        filepath = self._build_filepath(entity.id.hex, 'json')
         mode = "w" if overwrite else "x"
         with filepath.open(mode) as f:
             json.dump(dataclasses.asdict(entity), f, default=json_dump_default)
 
     def load(self, id):
-        filepath = self._build_filepath(id)
+        filepath = self._build_filepath(id, 'json')
         with filepath.open("r") as f:
             json_loaded = json.load(f, object_hook=json_load_object_hook)
             return self.stored_type(**json_loaded)
 
     def get_all_ids(self):
-        return [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*'))]
+        return [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*', filetype='json'))]
 
     def check_if_exist(self, id):
         filepath = self._build_filepath(id)
         return filepath.exists()
 
-    def _build_filepath(self, id):
-        return self.path / self.FILENAME_TEMPLATE.format(id=id)
+    def _build_filepath(self, id, filetype):
+        return self.path / self.FILENAME_TEMPLATE.format(id=id, filetype=filetype)
