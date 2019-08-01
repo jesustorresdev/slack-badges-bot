@@ -64,6 +64,8 @@ class BadgeService:
             image = image.replace(fileformat, '')
             with open(image, 'rb') as f:
                 image_bytes = BytesIO(f.read())
+        elif isinstance(image, BytesIO):
+            image_bytes = image
         else:
             image_bytes = None
             raise TypeError(f'BadgeService.open_image: format not recognized')
