@@ -1,9 +1,13 @@
 """Definición de las entidades de la aplicación.
 """
-from dataclasses import dataclass
+import inspect
+import logging
+
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Union
+from io import BytesIO
 
 from slack_badges_bot.entities.entityid import EntityID
 
@@ -12,13 +16,11 @@ __contact__ = "jmtorres@ull.es"
 __license__ = "Apache License, Version 2.0"
 __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
-
 @dataclass
 class Person:
     id: EntityID
     email: str
     slack_id: str
-
 
 @dataclass
 class Badge:
@@ -26,8 +28,11 @@ class Badge:
     name: str
     description: str
     criteria: List[str]
-    image: Path
+    image: Union[Path, str, BytesIO] # Llama al setter
+    image_type: str
 
+    def __post_init__(self):
+        logging.debug(f'Created new Badge {self}')
 
 @dataclass
 class Award:

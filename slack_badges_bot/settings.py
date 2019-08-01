@@ -10,9 +10,13 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 class DefaultConfig:
     DEBUG = True
-    DATA_PATH = 'data'  # Relativo al directorio de trabajo de la aplicación
+    DATA_PATH = '../data'  # Relativo al directorio de trabajo de la aplicación
+    BADGES_PATH = '../data/badges'
+    BADGE_NAME_MIN_LENGTH = 5
+    BADGE_DESCRIPTION_MIN_LENGTH = 5
+    BADGE_MIN_CRITERIA = 1
 
     # Ver https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.run_app
     # Para los valores por defecto de estas opciones
     HTTP_HOST = None    # 0.0.0.0
-    HTTP_PORT = None    # 8080 para HTTP y 8443 para HTTPS
+    HTTP_PORT = 5000    # NGINX
