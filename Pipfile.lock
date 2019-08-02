@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1cebf75604f3843f46d14a5877e1a4fa47494f1fef66dda591b58d6556c66a72"
+            "sha256": "cbec3ed9632af1c3a8574c570033fdf27c402a70d80c706c83e541b8a0d89d2b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -44,6 +44,11 @@
             "index": "pypi",
             "version": "==3.5.4"
         },
+        "aiohttp-validate": {
+            "editable": true,
+            "git": "file:///home/mbelda/repos/aiohttp_validate",
+            "ref": "894ac6a4d84b7bb9a480e34a78ea6d5a518f9fd3"
+        },
         "async-timeout": {
             "hashes": [
                 "sha256:0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f",
@@ -71,6 +76,13 @@
                 "sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"
             ],
             "version": "==2.8"
+        },
+        "jsonschema": {
+            "hashes": [
+                "sha256:5f9c0a719ca2ce14c5de2fd350a64fd2d13e8539db29836a86adc990bb1a068f",
+                "sha256:8d4a2b7b6c2237e0199c8ea1a6d3e05bf118e289ae2b9d7ba444182a2959560d"
+            ],
+            "version": "==3.0.2"
         },
         "multidict": {
             "hashes": [
@@ -144,6 +156,19 @@
             ],
             "index": "pypi",
             "version": "==0.3.0"
+        },
+        "pyrsistent": {
+            "hashes": [
+                "sha256:34b47fa169d6006b32e99d4b3c4031f155e6e68ebcc107d6454852e8e0ee6533"
+            ],
+            "version": "==0.15.4"
+        },
+        "six": {
+            "hashes": [
+                "sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c",
+                "sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"
+            ],
+            "version": "==1.12.0"
         },
         "yarl": {
             "hashes": [

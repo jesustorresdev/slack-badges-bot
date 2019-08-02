@@ -10,6 +10,7 @@ import traceback
 import sys
 import os
 import re
+import inspect
 
 from aiohttp import web
 from pathlib import Path
@@ -18,6 +19,7 @@ from io import BytesIO
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.config import ConfigService
 from errors import *
+from aiohttp_validate import validate
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
@@ -36,40 +38,64 @@ class WebService:
         self.app = web.Application()
         self._setup_routes()
         self.validated_encoding = None
+        print(inspect.getmro(WebService))
 
-    async def create_badge_handler(self, request: web.Request):
+    @validate(
+            request_schema = {
+                'type': 'object',
+                'properties': {
+                    'name': {
+                        'type': 'string',
+                        'minLenght': 5
+                        },
+                    'description':{
+                        'type': 'string',
+                        'minLength': 10
+                        },
+                    'criteria':{
+                        'type': 'array',
+                        'items': {
+                            'type': 'string'
+                            },
+                        'minItems': 3
+                        },
+                    'image':{
+                        'type': 'string'
+                        }
+                    },
+                'required': ['name', 'description', 'criteria', 'image'],
+                'aditionalProperties': False
+                },
+            response_schema = {
+                'type': 'object',
+                'properties': {
+                    'status': {'type': 'string'},
+                    'error' : {'type': 'string'}
+                    },
+                'required': ['status']
+                }
+            )
+    async def create_badge_handler(self, request_json, request):
         try:
-            request_json = await request.json()
+            #request_json = await request.json()
             # Validar
-            self.create_badge_validation(request.headers, request_json)
-            # Crear medalla
+            self.extra_validation(request_json)
+            ## Crear medalla
             self.badge_service.create(name=request_json['name'], description=request_json['description'],
                                       criteria=request_json['criteria'], image=self.validated_image_bytes)
             # Respuesta
-            return web.Response(text=json.dumps({'status': 'success'}), status=200)
+            return web.Response(text=json.dumps(\
+                    {'status': 'success'}),\
+                    status=200)
         except Exception as error:
             traceback.print_exc(file=sys.stdout)
-            return web.Response(text=f"Bad Request: {str(error)}", status=400)
+            return web.Response(text=json.dumps(\
+                    {'status': 'bad request', 'error': f'{str(error)}'}),\
+                    status=400)
 
-    def create_badge_validation(self, headers, request_json: dict):
-        if headers['Content-Type'] != 'application/json':
-            raise BadgeCreateError("Content-Type field of header must be application/json!")
-        expected = set(["name", "description", "criteria", "image"])
-        received = set([key for key in request_json])
-        if expected != received:
-            raise BadgeCreateError(f"parameters missing! Expected:{expected}, received: {received}")
-        if type(request_json["name"]) is not str:
-            raise BadgeCreateError("Name must be a string!")
-        if len(request_json["name"]) < self.config["BADGE_NAME_MIN_LENGTH"]:
-            raise BadgeCreateError("Name must have more characters!")
+    def extra_validation(self, request_json: dict):
         if self.badge_service.name_exists(request_json["name"]):
             raise BadgeCreateError("Badge already exists!")
-        if type(request_json["description"]) is not str:
-            raise BadgeCreateError("Description must be a string!")
-        if len(request_json["description"]) < self.config['BADGE_DESCRIPTION_MIN_LENGTH']:
-            raise BadgeCreateError("Description must have more characters!")
-        if len(request_json["criteria"]) < self.config['BADGE_MIN_CRITERIA']:
-            raise BadgeCreateError("You must supply more criteria!")
         self.validated_encoding = self.image_encoding(request_json['image'])
         if self.validated_encoding is None:
             raise BadgeCreateError(f'Image has not a valid encoding!')
