@@ -9,6 +9,7 @@ verify_ssl = true
 aiohttp = "*"
 punq = "*"
 pillow = "*"
+aiohttp-validate = {editable = true,git = "/home/mbelda/repos/aiohttp_validate"}
 
 [requires]
 python_version = "3.7"
