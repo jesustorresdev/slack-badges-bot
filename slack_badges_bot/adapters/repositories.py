@@ -11,7 +11,7 @@ from typing import Type
 from io import BytesIO
 
 from slack_badges_bot.services.repositories import EntityRepository
-from slack_badges_bot.entities.entities import Badge, BadgeImage, BadgeImage
+from slack_badges_bot.entities.entities import Badge, BadgeImage
 
 __author__ = 'jesús torres'
 __contact__ = "jmtorres@ull.es"

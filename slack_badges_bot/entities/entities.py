@@ -40,9 +40,6 @@ class Badge:
     description: str
     criteria: List[str]
     image: Union[BadgeImage, str]
-    #_image: Image = field(init=False, repr=False)
-    # problema: dataclasses.asdict() serializa también _image en el json
-    # consecuencia: en el load intenta inicializar un atributo _image con init=False
 
     def __post_init__(self):
         logging.debug(f'Badge creado: {self}')
