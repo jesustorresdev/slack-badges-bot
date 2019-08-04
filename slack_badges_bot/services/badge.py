@@ -67,11 +67,6 @@ class BadgeService:
             return badge.image.get_data()
         raise TypeError(f'BadgeService.open_image: Can\'t open image of type {type(badge.image)}')
 
-    def image_type(self, image_bytes: BytesIO) -> str:
-        assert isinstance(image_bytes, BytesIO),\
-            'BadgeService.image_type: image is not an instance of BytesIO'
-        return str(Image.open(image_bytes).format).lower()
-
     def validate_image(self, image_bytes: BytesIO) -> bool:
         #https://openbadges.org/developers/#badge-images
         assert isinstance(image_bytes, BytesIO),\
