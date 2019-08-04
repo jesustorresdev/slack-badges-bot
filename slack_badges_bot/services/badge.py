@@ -60,7 +60,7 @@ class BadgeService:
         '''
         if isinstance(badge.image, str):
             if Path(badge.image).exists:
-                badge.image = Image(path=badge.image)
+                badge.image = BadgeImage(path=badge.image)
             else:
                 raise ValueError(f'BadgeService.open_image: path {badge.image} doesn\'t exist')
         if isinstance(badge.image, BadgeImage):
