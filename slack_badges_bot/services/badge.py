@@ -3,18 +3,18 @@
 import inspect
 import logging
 
-from slack_badges_bot.entities import EntityID, Badge
+from slack_badges_bot.entities import EntityID, Badge, BadgeImage
 from slack_badges_bot.services.repositories import EntityRepositoryFactory
 from pathlib import Path
 from typing import List, Union
-from io import BytesIO
+from io import BufferedIOBase, BytesIO
 from PIL import Image
 from errors import *
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
-__license__ = "Apache License, Version 2.0"
-__copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
+__license__ = "apache license, version 2.0"
+__copyright__ = "copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 
 class BadgeService:
@@ -24,9 +24,9 @@ class BadgeService:
     def create(self, name: str, description: str,
                 criteria: List[str], image: BytesIO):
         logging.debug(f'LLAMADA a BadgeService.create({name})')
-        image_type = self.image_type(image)
+        image = BadgeImage(path=None, data=image)
         badge = Badge(id=EntityID.generate_unique_id(), name=name, description=description, criteria=criteria,
-                      image=image, image_type=image_type)
+                      image=image)
         logging.debug(f'CREADO: {badge}')
         self.badge_repository.save(badge)
         logging.debug(f'GUARDADO: {badge}')
@@ -54,22 +54,18 @@ class BadgeService:
         logging.debug(f'{badge_name} no existe')
         return False
 
-    def open_image(self, image: Union[str, BytesIO]) -> BytesIO:
+    def open_image(self, badge: Badge) -> BufferedIOBase:
         '''
-        Método para leer la imagen. Si recibe un str abre la imagen,
-        si recibe un BytesIO es que la imagen ya estaba abierta y lo devuelve
+        Método para acceder a la imagen de una medalla
         '''
-        fileformat = 'file://'
-        if image.startswith(fileformat):
-            image = image.replace(fileformat, '')
-            with open(image, 'rb') as f:
-                image_bytes = BytesIO(f.read())
-        elif isinstance(image, BytesIO):
-            image_bytes = image
-        else:
-            image_bytes = None
-            raise TypeError(f'BadgeService.open_image: format not recognized')
-        return image_bytes
+        if isinstance(badge.image, str):
+            if Path(badge.image).exists:
+                badge.image = Image(path=badge.image)
+            else:
+                raise ValueError(f'BadgeService.open_image: path {badge.image} doesn\'t exist')
+        if isinstance(badge.image, BadgeImage):
+            return badge.image.get_data()
+        raise TypeError(f'BadgeService.open_image: Can\'t open image of type {type(badge.image)}')
 
     def image_type(self, image_bytes: BytesIO) -> str:
         assert isinstance(image_bytes, BytesIO),\
