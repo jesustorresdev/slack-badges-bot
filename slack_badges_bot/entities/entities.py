@@ -3,13 +3,14 @@
 import inspect
 import logging
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import List, Union
-from io import BytesIO
+from io import BufferedIOBase
 
 from slack_badges_bot.entities.entityid import EntityID
+from slack_badges_bot.entities.badgeimage import BadgeImage
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
@@ -24,15 +25,24 @@ class Person:
 
 @dataclass
 class Badge:
+    """Clase para representar medallas
+    Attributes:
+        id (EntityID): identificador único.
+        name (str): nombre de la medalla.
+        description (str): descripción de la medalla.
+        criteria (str): criterios para ganar la medalla.
+        image (BadgeImage, str): imagen de la medalla.
+            puede ser un string con la ruta del archivo o
+            una instancia de la clase BadgeImage.
+    """
     id: EntityID
     name: str
     description: str
     criteria: List[str]
-    image: Union[Path, str, BytesIO] # Llama al setter
-    image_type: str
+    image: Union[BadgeImage, str]
 
     def __post_init__(self):
-        logging.debug(f'Created new Badge {self}')
+        logging.debug(f'Badge creado: {self}')
 
 @dataclass
 class Award:
@@ -40,3 +50,15 @@ class Award:
     timestamp: datetime
     person: Person
     badge: Badge
+
+
+def json_default(o):
+    if isinstance(o, BufferedReader):
+        o = None
+
+if __name__ == '__main__': # Probando
+    logging.basicConfig(level=logging.DEBUG)
+    b = Badge(id=EntityID.generate_unique_id(),\
+            name='Prueba', description='desc',\
+            criteria=[], image='/tmp/prueba.png')#open('/tmp/prueba.png', 'rb'))
+    print(b.asdict_factory())

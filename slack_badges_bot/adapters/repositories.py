@@ -11,12 +11,12 @@ from typing import Type
 from io import BytesIO
 
 from slack_badges_bot.services.repositories import EntityRepository
-from slack_badges_bot.entities.entities import Badge
+from slack_badges_bot.entities.entities import Badge, BadgeImage
 
-__author__ = 'Jesús Torres'
+__author__ = 'jesús torres'
 __contact__ = "jmtorres@ull.es"
-__license__ = "Apache License, Version 2.0"
-__copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
+__license__ = "apache license, version 2.0"
+__copyright__ = "copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 def json_dump_default(o):
     """Función para pasar por el argumento default a la función json.dump().
@@ -59,17 +59,19 @@ class EntityJsonRepository(EntityRepository):
 
     def save(self, entity, overwrite=False):
         if isinstance(entity, Badge):
-            if isinstance(entity.image, BytesIO):
-                logging.debug(f'EntityJSONRepository.save: {entity.image}')
-                image_filepath = self._build_filepath(entity.id.hex, entity.image_type)
-                with image_filepath.open('wb') as f:
-                    entity.image.seek(0)
-                    f.write(entity.image.read())
-                entity.image = 'file://' + str(image_filepath)
+            if isinstance(entity.image, BadgeImage):
+                self.save_badgeimage(entity)
         filepath = self._build_filepath(entity.id.hex, 'json')
         mode = "w" if overwrite else "x"
         with filepath.open(mode) as f:
             json.dump(dataclasses.asdict(entity), f, default=json_dump_default)
+
+    def save_badgeimage(self, entity):
+        image_filepath = self._build_filepath(entity.id.hex, entity.image.suffix)
+        if entity.image.path is None:
+            with image_filepath.open('wb') as f:
+                f.write(entity.image.get_data().read())
+        entity.image = image_filepath
 
     def load(self, id):
         logging.debug(f'EntityJSONRepository.load({id})')
