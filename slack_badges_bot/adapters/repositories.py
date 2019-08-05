@@ -13,10 +13,10 @@ from io import BytesIO
 from slack_badges_bot.services.repositories import EntityRepository
 from slack_badges_bot.entities.entities import Badge, BadgeImage
 
-__author__ = 'jesús torres'
+__author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
-__license__ = "apache license, version 2.0"
-__copyright__ = "copyright 2019 {0} <{1}>".format(__author__, __contact__)
+__license__ = "Apache License, jersion 2.0"
+__copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 def json_dump_default(o):
     """Función para pasar por el argumento default a la función json.dump().

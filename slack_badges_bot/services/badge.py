@@ -70,7 +70,7 @@ class BadgeService:
     def validate_image(self, image_bytes: BytesIO) -> bool:
         #https://openbadges.org/developers/#badge-images
         assert isinstance(image_bytes, BytesIO),\
-            'BadgeService.image_type: image is not an instance of BytesIO'
+            'BadgeService.validate_image: image is not an instance of BytesIO'
         image = Image.open(image_bytes)
         if str(image.format).lower() not in ['png', 'svg']:
             raise BadgeImageError(f'Image must be png or svg ({image.format})')

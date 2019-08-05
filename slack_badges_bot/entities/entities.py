@@ -60,5 +60,6 @@ if __name__ == '__main__': # Probando
     logging.basicConfig(level=logging.DEBUG)
     b = Badge(id=EntityID.generate_unique_id(),\
             name='Prueba', description='desc',\
-            criteria=[], image='/tmp/prueba.png')#open('/tmp/prueba.png', 'rb'))
-    print(b.asdict_factory())
+            criteria=[], image=BadgeImage(path='/tmp/prueba.png', data=None))#open('/tmp/prueba.png', 'rb'))
+
+    print(asdict(b))
