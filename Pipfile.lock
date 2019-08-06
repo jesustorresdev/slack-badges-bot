@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6eaf9fd7bbab72a682f12b53428fcbdade2236a408efad616e408d2159ac6557"
+            "sha256": "7a04e5567d8ed46195fbd40a8f31a1a0f7b7e6bde267a05b67c1bdb73e816e7e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -45,9 +45,11 @@
             "version": "==3.5.4"
         },
         "aiohttp-validate": {
-            "editable": true,
-            "git": "https://github.com/alu0100832211/aiohttp_validate",
-            "ref": "894ac6a4d84b7bb9a480e34a78ea6d5a518f9fd3"
+            "hashes": [
+                "sha256:4e643e35a3ef14e769f5e13480c78821de7450ae921bac1dae646814718242bc"
+            ],
+            "index": "pypi",
+            "version": "==1.1.0"
         },
         "async-timeout": {
             "hashes": [
