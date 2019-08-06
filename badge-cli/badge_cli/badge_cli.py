@@ -1,9 +1,5 @@
 import click
-import requests
-import json
-import base64
 from badge_cli.slack_badges_bot_client.badge import badge
-#from PIL import Image
 
 @click.group()
 def cli():
