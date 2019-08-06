@@ -10,6 +10,7 @@ aiohttp = "*"
 punq = "*"
 pillow = "*"
 aiohttp-validate = {editable = true,git = "/home/mbelda/repos/aiohttp_validate"}
+badge-cli = {editable = true,path = "./badge-cli"}
 
 [requires]
 python_version = "3.7"

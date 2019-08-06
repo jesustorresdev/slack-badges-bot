@@ -1,0 +1,8 @@
+{
+  "name": "medalla de plata",
+  "description": "descripcion",
+  "criteria": [
+    "criterio1", "criterio2", "criterio3"
+  ],
+  "image": "https://i.imgur.com/oux3OBy.png"
+}
