@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9f68f9f6ad5c20eaac1c78e306d2391e62dc843bee1db56d43e87c4bd1821dc9"
+            "sha256": "6eaf9fd7bbab72a682f12b53428fcbdade2236a408efad616e408d2159ac6557"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -46,7 +46,7 @@
         },
         "aiohttp-validate": {
             "editable": true,
-            "git": "file:///home/mbelda/repos/aiohttp_validate",
+            "git": "https://github.com/alu0100832211/aiohttp_validate",
             "ref": "894ac6a4d84b7bb9a480e34a78ea6d5a518f9fd3"
         },
         "async-timeout": {
