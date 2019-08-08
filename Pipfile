@@ -10,7 +10,7 @@ aiohttp = "*"
 punq = "*"
 pillow = "*"
 #aiohttp-validate = {editable = true,git = "https://github.com/alu0100832211/aiohttp_validate"}
-badge-cli = {editable = true,path = "./badge-cli"}
+badge-cli = {path = "./badge-cli",editable = true}
 aiohttp-validate = "*"
 
 [requires]
