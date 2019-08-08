@@ -81,7 +81,9 @@ class EntityJsonRepository(EntityRepository):
             return self.stored_type(**json_loaded)
 
     def get_all_ids(self):
-        return [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*', filetype='json'))]
+        all_ids = [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*', filetype='json'))]
+        logging.debug(f'all_ids = {all_ids}')
+        return all_ids
 
     def check_if_exist(self, id):
         filepath = self._build_filepath(id)

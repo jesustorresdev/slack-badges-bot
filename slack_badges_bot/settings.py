@@ -10,6 +10,8 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 class DefaultConfig:
     DEBUG = True
+    API_URL = 'http://vituin-chat.iaas.ull.es/api'
+    BADGES_URL = f'{API_URL}/badges'
     DATA_PATH = '../data'  # Relativo al directorio de trabajo de la aplicación
     BADGES_PATH = '../data/badges'
     BADGE_NAME_MIN_LENGTH = 5

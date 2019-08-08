@@ -44,6 +44,10 @@ class Badge:
     def __post_init__(self):
         logging.debug(f'Badge creado: {self}')
 
+    @property
+    def id_str(self):
+        return str(self.id.hex)
+
 @dataclass
 class Award:
     id: EntityID

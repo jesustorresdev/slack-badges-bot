@@ -35,7 +35,9 @@ class BadgeService:
         return self.badge_repository.load(id)
 
     def retrieve_ids(self):
-        return self.badge_repository.get_all_ids()
+        all_ids = self.badge_repository.get_all_ids()
+        logging.debug(all_ids)
+        return all_ids
 
     def check_if_exist(self, id):
         return self.badge_repository.check_if_exist(id)

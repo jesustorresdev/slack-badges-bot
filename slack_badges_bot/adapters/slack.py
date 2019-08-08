@@ -1,11 +1,17 @@
 """Aplicación de Slack
 """
 import json
+import logging
+import sys
+import traceback
+import urllib
 
 from aiohttp import web
 
+from slack_badges_bot.utils import info
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.config import ConfigService
+from slack_badges_bot.adapters.blockbuilder import BlockBuilder
 
 __author__ = 'Jesús Torres'
 __contact__ = "jmtorres@ull.es"
@@ -20,27 +26,62 @@ class SlackApplication:
         self.badge_service = badge_service
         self.app = web.Application()
         self._setup_routes()
+        self.blockbuilder = BlockBuilder(self.config)
 
-    async def slash_command(self, request):
+    async def urlstring_to_json(self, request: web.Request):
+        request_bytes = await request.read()
+        request_json = urllib.parse.parse_qs(request_bytes.decode('utf-8'))
+        request_json = {key:request_json[key][0] for key in request_json}
+        return request_json
+
+    async def slash_command_handler(self, request):
         # TODO: Comprobar argumentos en request y añadir manejo de errores y excepciones
         # TODO: Usar signed secrets para comprobar que quien hace la petición es Slack.
         #       Ver https://api.slack.com/docs/verifying-requests-from-slack
-        message_text = request.query['text']
-        message_words = message_text.split()
+        try:
+            # request.query['text'] produce "KeyError: 'text'"
+            request_json = await self.urlstring_to_json(request)
+            if request_json['command'] != '/badges':
+                raise web.HTTPBadRequest
 
-        # TODO: Esto puede ser una pesadilla de ifs anidados. Pensar en otra manera.
-        if message_words[1] == "badges":
-            if message_words[2] == "list":
-                badges = self.badge_service.retrieve_ids()
-                return web.Response(text=json.dumps(
-                    # TODO: Ojo con el insignia en singular si solo hay una.
-                    {
-                        "response_type": "ephemeral",
-                        'text': f'Actualmente hay disponibles {len(badges)} insignias.',
-                        'attachments': [
-                            {'text': badge_id for badge_id in badges}
-                        ],
-                    }), status=200)
+            text = request_json['text'].strip()
+            if text.startswith('list all'):
+                response = self.list_all_badges()
+            elif text.startswith('list'):
+                response = self.list_user_badges(text.replace('list','',1))
+            elif text.startswith('give'):
+                response = self.give_badge(text.replace('give','',1))
+            elif text.startswith('help'):
+                response = self.help_info()
+            else:
+                response = web.Response(text="Ese comando no existe!")
+        except:
+            traceback.print_exc(file=sys.stdout)
+            response = web.Response(text="Error!")
+        return response
+
+    def list_all_badges(self):
+        badge_ids = self.badge_service.retrieve_ids()
+        badges = [self.badge_service.retrieve(badge_id) for badge_id in badge_ids]
+        logging.debug(badges)
+        s = 's' if len(badges) > 1 else ''
+        block = self.blockbuilder.badges_block(badges)
+        logging.debug(block)
+        logging.debug(json.dumps(block,indent=True))
+        return web.json_response(\
+                {
+                    "response_type": "ephemeral",
+                    "text": f"Actualmente hay disponible{s} {len(badges)} insignia{s}.",
+                    "blocks": self.blockbuilder.badges_block(badges),
+                },\
+                status=200)
+
+    def list_user_badges(self, text):
+        raise NotImplementedError
+    def give_badge(self, text):
+        raise NotImplementedError
+    def help_info(self):
+        raise NotImplementedError
 
     def _setup_routes(self):
-        self.app.router.add_post('/slash-command', self.slash_command)
+        self.app.router.add_post('/slash-command', self.slash_command_handler)

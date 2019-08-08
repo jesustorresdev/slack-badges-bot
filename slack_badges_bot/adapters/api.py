@@ -132,5 +132,20 @@ class WebService:
                     return BytesIO(await resp.read())
         raise BadgeImageError(f'WebService.urltobytes: couldn\'t dowload badge image from {url}')
 
+    async def badge_image_handler(self, request):
+        try:
+            badge_id = request.match_info['badge_id']
+            badge = self.badge_service.retrieve(badge_id)
+            image_fd = self.badge_service.open_image(badge)
+            logging.debug(f'badge_image_handler: {image_bytes}')
+            response = web.Response(body=image_fd.read(), content_type='application/image')
+        except:
+            traceback.print_exc(file=sys.stdout)
+            response = web.HTTPBadRequest()
+        return response
+
+
+
     def _setup_routes(self):
         self.app.router.add_post('/badges/create', self.create_badge_handler)
+        self.app.router.add_get('/badges/{badge_id}/image', self.badge_image_handler)
