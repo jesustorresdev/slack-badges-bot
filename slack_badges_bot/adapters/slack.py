@@ -32,12 +32,6 @@ class SlackApplication:
         self._setup_routes()
         self.blockbuilder = BlockBuilder(self.config)
 
-    async def urlstring_to_json(self, request: web.Request):
-        request_bytes = await request.read()
-        request_json = urllib.parse.parse_qs(request_bytes.decode('utf-8'))
-        request_json = {key:request_json[key][0] for key in request_json}
-        return request_json
-
     async def verify_request(self, request: web.Request):
         #https://api.slack.com/docs/verifying-requests-from-slack
         slack_signature = request.headers['X-Slack-Signature'] #str
@@ -65,18 +59,17 @@ class SlackApplication:
         return True
 
     async def slash_command_handler(self, request):
-        # TODO: Comprobar argumentos en request y añadir manejo de errores y excepciones
-        # TODO: Usar signed secrets para comprobar que quien hace la petición es Slack.
-        #       Ver https://api.slack.com/docs/verifying-requests-from-slack
         try:
             await self.verify_request(request)
 
-            # request.query['text'] produce "KeyError: 'text'"
-            request_json = await self.urlstring_to_json(request)
-            if request_json['command'] != '/badges':
+            request_post = await request.post()
+
+            logging.debug(request_post)
+
+            if request_post['command'] != '/badges':
                 raise web.HTTPBadRequest
 
-            text = request_json['text'].strip()
+            text = request_post['text'].strip()
             if text.startswith('list all'):
                 response = self.list_all_badges()
             elif text.startswith('list'):
