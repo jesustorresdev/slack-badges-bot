@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9f68f9f6ad5c20eaac1c78e306d2391e62dc843bee1db56d43e87c4bd1821dc9"
+            "sha256": "7a04e5567d8ed46195fbd40a8f31a1a0f7b7e6bde267a05b67c1bdb73e816e7e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -45,9 +45,11 @@
             "version": "==3.5.4"
         },
         "aiohttp-validate": {
-            "editable": true,
-            "git": "file:///home/mbelda/repos/aiohttp_validate",
-            "ref": "894ac6a4d84b7bb9a480e34a78ea6d5a518f9fd3"
+            "hashes": [
+                "sha256:4e643e35a3ef14e769f5e13480c78821de7450ae921bac1dae646814718242bc"
+            ],
+            "index": "pypi",
+            "version": "==1.1.0"
         },
         "async-timeout": {
             "hashes": [

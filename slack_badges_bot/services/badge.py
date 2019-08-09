@@ -23,25 +23,22 @@ class BadgeService:
 
     def create(self, name: str, description: str,
                 criteria: List[str], image: BytesIO):
-        logging.debug(f'LLAMADA a BadgeService.create({name})')
         image = BadgeImage(path=None, data=image)
         badge = Badge(id=EntityID.generate_unique_id(), name=name, description=description, criteria=criteria,
                       image=image)
-        logging.debug(f'CREADO: {badge}')
         self.badge_repository.save(badge)
-        logging.debug(f'GUARDADO: {badge}')
 
     def retrieve(self, id):
         return self.badge_repository.load(id)
 
     def retrieve_ids(self):
-        return self.badge_repository.get_all_ids()
+        all_ids = self.badge_repository.get_all_ids()
+        return all_ids
 
     def check_if_exist(self, id):
         return self.badge_repository.check_if_exist(id)
 
     def name_exists(self, badge_name):
-        logging.debug(f'Comprobando si existe nombre {badge_name}')
 
         ids = self.retrieve_ids()
         badge_name = badge_name.lower().replace(" ", "")
@@ -49,9 +46,7 @@ class BadgeService:
             badge = self.retrieve(id)
             retrieved_badge_name = badge.name.lower().replace(" ", "")
             if badge_name == retrieved_badge_name:
-                logging.debug(f'{badge_name} existe!')
                 return True
-        logging.debug(f'{badge_name} no existe')
         return False
 
     def open_image(self, badge: Badge) -> BufferedIOBase:
