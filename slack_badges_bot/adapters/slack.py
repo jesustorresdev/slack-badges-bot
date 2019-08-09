@@ -26,6 +26,7 @@ class SlackApplication:
 
     def __init__(self, config: ConfigService, badge_service: BadgeService):
         self.config = config
+        self.secret = self.config['SLACK_SIGNING_SECRET']
         self.badge_service = badge_service
         self.app = web.Application()
         self._setup_routes()
@@ -39,18 +40,24 @@ class SlackApplication:
 
     async def verify_request(self, request: web.Request):
         #https://api.slack.com/docs/verifying-requests-from-slack
-        slack_signature = request.headers['X-Slack-Signature']
-        timestamp = request.headers['X-Slack-Request-Timestamp']
-        secret = self.config['SLACK_SIGNING_SECRET']
-        version_number = 'v0'
-        req_body = await request.read()
-        now = time.time()
+        slack_signature = request.headers['X-Slack-Signature'] #str
+        timestamp = request.headers['X-Slack-Request-Timestamp'] #str
+        version_number = 'v0' #str
+        req_body = await request.read() #bytes
+        secret = self.config['SLACK_SIGNING_SECRET'] #str
+        now = time.time() # float
 
-        if abs(now - timestamp) > self.config['SLACK_VERIFY_SECONDS']:
+        if abs(now - float(timestamp)) > float(self.config['SLACK_VERIFY_SECONDS']):
             raise web.HTTPForbidden
 
-        message = ':'.join([version_number, timestamp, req_body])
-        request_signature = hmac.new(secret, msg=message, digestmod=haslib.sha256)
+        base_string = ':'.join([version_number, timestamp, req_body.decode('utf-8')]) # str
+        base_string = str.encode(base_string) # bytes
+
+        request_signature = 'v0=' +  hmac.new(
+                                         str.encode(self.secret),
+                                         base_string,
+                                         hashlib.sha256
+                                     ).hexdigest()
 
         if not hmac.compare_digest(slack_signature, request_signature):
             raise web.HTTPForbidden()
@@ -62,6 +69,8 @@ class SlackApplication:
         # TODO: Usar signed secrets para comprobar que quien hace la petición es Slack.
         #       Ver https://api.slack.com/docs/verifying-requests-from-slack
         try:
+            await self.verify_request(request)
+
             # request.query['text'] produce "KeyError: 'text'"
             request_json = await self.urlstring_to_json(request)
             if request_json['command'] != '/badges':
@@ -86,11 +95,8 @@ class SlackApplication:
     def list_all_badges(self):
         badge_ids = self.badge_service.retrieve_ids()
         badges = [self.badge_service.retrieve(badge_id) for badge_id in badge_ids]
-        logging.debug(badges)
         s = 's' if len(badges) > 1 else ''
         block = self.blockbuilder.badges_block(badges)
-        logging.debug(block)
-        logging.debug(json.dumps(block,indent=True))
         return web.json_response(\
                 {
                     "response_type": "ephemeral",

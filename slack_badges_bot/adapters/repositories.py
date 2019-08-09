@@ -74,7 +74,6 @@ class EntityJsonRepository(EntityRepository):
         entity.image = image_filepath
 
     def load(self, id):
-        logging.debug(f'EntityJSONRepository.load({id})')
         filepath = self._build_filepath(id, 'json')
         with filepath.open("r") as f:
             json_loaded = json.load(f, object_hook=json_load_object_hook)
@@ -82,7 +81,6 @@ class EntityJsonRepository(EntityRepository):
 
     def get_all_ids(self):
         all_ids = [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*', filetype='json'))]
-        logging.debug(f'all_ids = {all_ids}')
         return all_ids
 
     def check_if_exist(self, id):
