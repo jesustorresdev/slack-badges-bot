@@ -5,6 +5,9 @@ import logging
 import sys
 import traceback
 import urllib
+import time
+import hmac
+import hashlib
 
 from aiohttp import web
 
@@ -34,6 +37,26 @@ class SlackApplication:
         request_json = {key:request_json[key][0] for key in request_json}
         return request_json
 
+    async def verify_request(self, request: web.Request):
+        #https://api.slack.com/docs/verifying-requests-from-slack
+        slack_signature = request.headers['X-Slack-Signature']
+        timestamp = request.headers['X-Slack-Request-Timestamp']
+        secret = self.config['SLACK_SIGNING_SECRET']
+        version_number = 'v0'
+        req_body = await request.read()
+        now = time.time()
+
+        if abs(now - timestamp) > self.config['SLACK_VERIFY_SECONDS']:
+            raise web.HTTPForbidden
+
+        message = ':'.join([version_number, timestamp, req_body])
+        request_signature = hmac.new(secret, msg=message, digestmod=haslib.sha256)
+
+        if not hmac.compare_digest(slack_signature, request_signature):
+            raise web.HTTPForbidden()
+
+        return True
+
     async def slash_command_handler(self, request):
         # TODO: Comprobar argumentos en request y añadir manejo de errores y excepciones
         # TODO: Usar signed secrets para comprobar que quien hace la petición es Slack.
@@ -57,7 +80,7 @@ class SlackApplication:
                 response = web.Response(text="Ese comando no existe!")
         except:
             traceback.print_exc(file=sys.stdout)
-            response = web.Response(text="Error!")
+            response = web.Response(text="Error! :cry:")
         return response
 
     def list_all_badges(self):

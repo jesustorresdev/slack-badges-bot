@@ -137,7 +137,6 @@ class WebService:
             badge_id = request.match_info['badge_id']
             badge = self.badge_service.retrieve(badge_id)
             image_fd = self.badge_service.open_image(badge)
-            logging.debug(f'badge_image_handler: {image_bytes}')
             response = web.Response(body=image_fd.read(), content_type='application/image')
         except:
             traceback.print_exc(file=sys.stdout)
