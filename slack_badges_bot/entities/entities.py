@@ -22,6 +22,11 @@ class Person:
     id: EntityID
     email: str
     slack_id: str
+    slack_name: str
+
+    @property
+    def id_str(self):
+        return str(self.id.hex)
 
 @dataclass
 class Badge:
@@ -51,16 +56,25 @@ class Award:
     timestamp: datetime
     person: Person
     badge: Badge
+    image: Union[BadgeImage, str]
 
+    def __post_init__(self):
+        if type(self.person) is dict:
+            self.person = Person(**self.person)
+        if type(self.badge) is dict:
+            self.badge = Badge(**self.badge)
 
-def json_default(o):
-    if isinstance(o, BufferedReader):
-        o = None
+    @property
+    def id_str(self):
+        return str(self.id.hex)
+
+@dataclass
+class Issuer:
+    id: EntityID
+    name: str
+    url: str
+    description: str
+
 
 if __name__ == '__main__': # Probando
-    logging.basicConfig(level=logging.DEBUG)
-    b = Badge(id=EntityID.generate_unique_id(),\
-            name='Prueba', description='desc',\
-            criteria=[], image=BadgeImage(path='/tmp/prueba.png', data=None))#open('/tmp/prueba.png', 'rb'))
-
-    print(asdict(b))
+    pass

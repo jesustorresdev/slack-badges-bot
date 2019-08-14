@@ -14,22 +14,38 @@ __contact__ = "jmtorres@ull.es"
 __license__ = "Apache License, Version 2.0"
 __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
+
 config = services.config.ConfigService()
 config.from_object('slack_badges_bot.settings.DefaultConfig')
 
 # Inyección de dependencias
-a = adapters.repositories.EntityJsonRepository
 container = punq.Container()
 container.register(services.config.ConfigService, instance=config)
 container.register(services.badge.BadgeService)
 
 container.register(services.repositories.EntityRepositoryFactory)
-container.register(services.repositories.EntityRepository, adapters.repositories.EntityJsonRepository,
-                   stored_type=entities.Badge, path=config.option_as_path('DATA_PATH') / 'badges')
-# TODO: registrar repositorios de awards, persons e issuer
-# --> https://punq.readthedocs.io/en/latest/ ejemplo del Authenticator
+container.register(services.repositories.EntityRepository,
+                    adapters.repositories.EntityJsonRepository,
+                    stored_type=entities.Badge,
+                    path=config.option_as_path('DATA_PATH') / 'badges')
 
-def init_app(argv):
+container.register(services.repositories.EntityRepository,
+                    adapters.repositories.EntityJsonRepository,
+                    stored_type=entities.Person,
+                    path=config.option_as_path('DATA_PATH') / 'persons')
+
+container.register(services.repositories.EntityRepository,
+                    adapters.repositories.EntityJsonRepository,
+                    stored_type=entities.Award,
+                    path=config.option_as_path('DATA_PATH') / 'awards')
+
+container.register(services.repositories.EntityRepository,
+                    adapters.repositories.EntityJsonRepository,
+                    stored_type=entities.Issuer,
+                    path=config.option_as_path('DATA_PATH') / 'issuer')
+
+
+def set_debug():
     if config['DEBUG']:
         # Activar el modo de depuración de asyncio.
         os.environ['PYTHONASYNCIODEBUG'] = "1"
@@ -38,6 +54,8 @@ def init_app(argv):
                 datefmt='%Y-%m-%d:%H:%M:%S',
                 level=logging.DEBUG)
 
+def init_app(argv):
+    set_debug()
     app = web.Application()
     app.add_subapp('/api', adapters.api.WebService(
         config=config,
