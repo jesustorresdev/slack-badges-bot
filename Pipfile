@@ -10,8 +10,10 @@ aiohttp = "*"
 punq = "*"
 pillow = "*"
 #aiohttp-validate = {editable = true,git = "https://github.com/alu0100832211/aiohttp_validate"}
-badge-cli = {path = "./badge-cli",editable = true}
+badge-cli = {editable = true,path = "./badge-cli"}
 aiohttp-validate = "*"
+slackclient = "*"
+openbadges-bakery = {git = "https://github.com/concentricsky/openbadges-bakery",editable = true}
 
 [requires]
 python_version = "3.7"

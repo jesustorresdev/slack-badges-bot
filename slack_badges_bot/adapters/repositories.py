@@ -58,7 +58,7 @@ class EntityJsonRepository(EntityRepository):
         return self._stored_type
 
     def save(self, entity, overwrite=False):
-        if isinstance(entity, Badge):
+        if hasattr(entity, 'image'):
             if isinstance(entity.image, BadgeImage):
                 self.save_badgeimage(entity)
         filepath = self._build_filepath(entity.id.hex, 'json')
@@ -80,8 +80,7 @@ class EntityJsonRepository(EntityRepository):
             return self.stored_type(**json_loaded)
 
     def get_all_ids(self):
-        all_ids = [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*', filetype='json'))]
-        return all_ids
+        return [name.stem for name in self.path.glob(self.FILENAME_TEMPLATE.format(id='*', filetype='json'))]
 
     def check_if_exist(self, id):
         filepath = self._build_filepath(id)

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7a04e5567d8ed46195fbd40a8f31a1a0f7b7e6bde267a05b67c1bdb73e816e7e"
+            "sha256": "a64b3401c3a72619ea32e98620bc3aa8bbeaf703069976d4fb8aa92693ad24e3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -138,6 +138,11 @@
             ],
             "version": "==4.5.2"
         },
+        "openbadges-bakery": {
+            "editable": true,
+            "git": "https://github.com/concentricsky/openbadges-bakery",
+            "ref": "c9a159706d90eaa4708b8879ac680cd40799a2d0"
+        },
         "pillow": {
             "hashes": [
                 "sha256:0804f77cb1e9b6dbd37601cee11283bba39a8d44b9ddb053400c58e0c0d7d9de",
@@ -177,6 +182,12 @@
             "index": "pypi",
             "version": "==0.3.0"
         },
+        "pypng": {
+            "hashes": [
+                "sha256:985a1306319e3187e2cb3dabec95a7a0f0f281ae2e1fec04289bed520fecd932"
+            ],
+            "version": "==0.0.18"
+        },
         "pyrsistent": {
             "hashes": [
                 "sha256:34b47fa169d6006b32e99d4b3c4031f155e6e68ebcc107d6454852e8e0ee6533"
@@ -196,6 +207,14 @@
                 "sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"
             ],
             "version": "==1.12.0"
+        },
+        "slackclient": {
+            "hashes": [
+                "sha256:ed0f60dd5a646b4ccd31ec1f11503b8689850894681e6baae2bc06b941fc1c58",
+                "sha256:eeb0dad774f6661f7504d80d8a22deadadb941b840e7a0719b5b92d4d84f9015"
+            ],
+            "index": "pypi",
+            "version": "==2.1.0"
         },
         "urllib3": {
             "hashes": [

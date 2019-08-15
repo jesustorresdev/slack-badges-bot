@@ -1,6 +1,7 @@
 """Interfaces de los repositorios para la persistencia de datos.
 """
 import abc
+import logging
 from typing import List
 
 __author__ = 'Jesús Torres'

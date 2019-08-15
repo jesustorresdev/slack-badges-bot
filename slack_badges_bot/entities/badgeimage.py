@@ -22,24 +22,24 @@ class BadgeImage:
     data: BufferedIOBase
     suffix: str = None
 
-
     def __post_init__(self):
-        if self.path:
-            assert isinstance(self.path, str), f'path of type {type(self.path)} not allowed'
-            self.path = Path(self.path)
-            self.suffix = self.path.suffix[1:] # quitar el "." de ".png"
-        if self.data:
+        if self.data: # Cuando se crea con imagen bytes
             assert isinstance(self.data, BufferedIOBase), f'data of type {type(self.data)} not allowed'
             self.data = self.data
             self.data.seek(0)
             self.suffix = str(PILImage.open(self.data).format).lower()
+        else: # Cuando se carga desde el repositorio
+            assert self.path is not None, f'None path and None data not allowed!'
+            assert isinstance(self.path, str), f'path of type {type(self.path)} not allowed'
+            self.path = Path(self.path)
+            self.suffix = self.path.suffix[1:] # quitar el "." de ".png"
 
     def get_data(self):
         ''' Método para acceder a self.data
-        Carga la imagen si no está en memoria
+        Abre el fichero y devuelve el descriptor de fichero de la imagen.
+        En llamadas posteriores sólo devuelve el descriptor de fichero ya abierto.
         '''
         if self.data is None:
-            assert self.path is not None
             self.data = open(self.path, 'rb')
         self.data.seek(0)
         return self.data
