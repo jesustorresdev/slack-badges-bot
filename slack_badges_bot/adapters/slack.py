@@ -21,6 +21,8 @@ from slack_badges_bot.utils import info
 from slack_badges_bot.entities import Badge, Award, BadgeImage
 
 from slack_badges_bot.services.badge import BadgeService
+from slack_badges_bot.services.award import AwardService
+from slack_badges_bot.services.issuer import IssuerService
 from slack_badges_bot.services.config import ConfigService
 
 from slack_badges_bot.adapters.blockbuilder import BlockBuilder
@@ -34,19 +36,22 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 class SlackApplication:
 
     def __init__(self, config: ConfigService,
-                    badge_service: BadgeService):
+                    badge_service: BadgeService,
+                    award_service: AwardService):
         self.config = config
         self.secret = self.config['SLACK_SIGNING_SECRET']
         self.badge_service = badge_service
+        self.award_service = award_service
+
         self.app = web.Application()
         self._setup_routes()
         self.blockbuilder = BlockBuilder(self.config)
-        self.errorresponse = web.Response(text='Error! :cry:')
         self.slackclient = slack.WebClient(token=self.config['SLACK_OAUTH_ACCESS_TOKEN'],
                                             run_async=True)
         self.openbadges = OpenBadges(config)
         self.users_list_time = 0
         self.users_info_time = 0
+        self.errortext = 'Error! :cry:'
 
     async def verify_request(self, request: web.Request):
         #https://api.slack.com/docs/verifying-requests-from-slack
@@ -96,12 +101,12 @@ class SlackApplication:
                 response = web.Response(text="Ese comando no existe!")
         except:
             traceback.print_exc(file=sys.stdout)
-            response = self.errorresponse
+            response = web.Response(text=self.errortext)
         return response
 
     def list_all_badges(self):
-        badge_ids = self.badge_service.retrieve_ids(Badge)
-        badges = [self.badge_service.retrieve(badge_id, Badge) for badge_id in badge_ids]
+        badge_ids = self.badge_service.retrieve_ids()
+        badges = [self.badge_service.retrieve(badge_id) for badge_id in badge_ids]
         s = 's' if len(badges) > 1 else ''
         block = self.blockbuilder.badges_block(badges)
         return web.json_response(\
@@ -148,13 +153,13 @@ class SlackApplication:
     def openbadges_award(self, slack_name: str, slack_id: str,
                          email: str, badge_name: str):
         logging.debug(f'Creando openbadges award')
-        award = self.badge_service.create_award(slack_name=slack_name,
+        award = self.award_service.create_award(slack_name=slack_name,
                                                 slack_id=slack_id,
                                                 email=email,
                                                 badge_name=badge_name)
         logging.debug(award)
         award.image = self.bakery(award)
-        self.badge_service.award_repository.save(award, overwrite=True)
+        self.award_service.award_repository.save(award, overwrite=True)
         logging.debug(award)
 
         return award

@@ -21,6 +21,8 @@ from io import BytesIO
 
 from slack_badges_bot.entities import Badge, Award, Issuer
 from slack_badges_bot.services.badge import BadgeService
+from slack_badges_bot.services.award import AwardService
+from slack_badges_bot.services.issuer import IssuerService
 from slack_badges_bot.services.config import ConfigService
 from slack_badges_bot.adapters.openbadges import OpenBadges
 from errors import *
@@ -33,9 +35,14 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 class WebService:
 
-    def __init__(self, config: ConfigService, badge_service: BadgeService):
+    def __init__(self, config: ConfigService,
+            badge_service: BadgeService,
+            award_service: AwardService,
+            issuer_service: IssuerService):
         self.config = config
         self.badge_service = badge_service
+        self.award_service = award_service
+        self.issuer_service = issuer_service
         self.app = web.Application()
         self.openbadges = OpenBadges(config)
         self._setup_routes()
@@ -131,7 +138,7 @@ class WebService:
         try:
             badge_id = request.match_info['badge_id']
             requested_data = request.match_info['requested_data']
-            badge = self.badge_service.retrieve(badge_id, Badge)
+            badge = self.badge_service.retrieve(badge_id)
             if requested_data == 'image':
                 image_fd = self.badge_service.open_image(badge)
                 content_type = mimetypes.guess_type(f'file.{badge.image.suffix}')[0]
@@ -151,7 +158,7 @@ class WebService:
     async def issuer_handler(self, request):
 # Este método devuelve el JSON con la info del issuer
         try:
-            issuer = self.badge_service.retrieve('issuer', Issuer)
+            issuer = self.issuer_service.retrieve(self.config['ISSUER_ID'])
             issuer_organization = self.openbadges.issuer_organization(issuer)
             logging.debug(issuer_organization)
             response = web.json_response(issuer_organization)
@@ -164,13 +171,13 @@ class WebService:
         try:
             award_id = request.match_info['award_id']
             requested_data = request.match_info['requested_data']
-            award = self.badge_service.retrieve(award_id, Award)
+            award = self.award_service.retrieve(award_id)
             logging.debug(award)
             if requested_data == 'json':
                 badge_assertion = self.openbadges.badge_assertion(award)
                 response = web.json_response(badge_assertion)
             elif requested_data == 'image':
-                image_fd = self.badge_service.open_image(award)
+                image_fd = self.award_service.open_image(award)
                 content_type = mimetypes.guess_type(f'file.{award.image.suffix}')[0]
                 response = web.Response(body=image_fd.read(), content_type=content_type)
             else:

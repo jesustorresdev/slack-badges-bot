@@ -22,6 +22,9 @@ config.from_object('slack_badges_bot.settings.DefaultConfig')
 container = punq.Container()
 container.register(services.config.ConfigService, instance=config)
 container.register(services.badge.BadgeService)
+container.register(services.award.AwardService)
+container.register(services.person.PersonService)
+container.register(services.issuer.IssuerService)
 
 container.register(services.repositories.EntityRepositoryFactory)
 container.register(services.repositories.EntityRepository,
@@ -59,11 +62,14 @@ def init_app(argv):
     app = web.Application()
     app.add_subapp('/api', adapters.api.WebService(
         config=config,
-        badge_service=container.resolve(services.badge.BadgeService)
+        badge_service=container.resolve(services.badge.BadgeService),
+        award_service=container.resolve(services.award.AwardService),
+        issuer_service=container.resolve(services.issuer.IssuerService)
     ).app)
     app.add_subapp('/slack', adapters.slack.SlackApplication(
         config=config,
-        badge_service=container.resolve(services.badge.BadgeService)
+        badge_service=container.resolve(services.badge.BadgeService),
+        award_service=container.resolve(services.award.AwardService)
     ).app)
     return app
 

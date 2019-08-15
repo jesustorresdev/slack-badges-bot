@@ -21,7 +21,8 @@ class DefaultConfig:
     AWARDS_JSON_URL = f'{AWARDS_URL}' + '/{}/json' # se usa .format para insertar el id
     AWARDS_IMAGE_URL = f'{AWARDS_URL}' + '/{}/image' # se usa .format para insertar el id
     ISSUER_URL = f'{API_URL}/issuer'
-    DATA_PATH = '../data'  # Relativo al directorio de trabajo de la aplicación
+    ISSUER_ID = 'issuer' # nombre del json en data/issuer/
+    DATA_PATH = '../data'
     BADGES_PATH = '../data/badges'
     BADGE_NAME_MIN_LENGTH = 5
     BADGE_DESCRIPTION_MIN_LENGTH = 5
