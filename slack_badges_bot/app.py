@@ -21,7 +21,11 @@ config.from_object('slack_badges_bot.settings.DefaultConfig')
 # Inyección de dependencias
 container = punq.Container()
 container.register(services.config.ConfigService, instance=config)
+
 container.register(services.badge.BadgeService)
+container.register(services.award.AwardService)
+container.register(services.person.PersonService)
+container.register(services.issuer.IssuerService)
 
 container.register(services.repositories.EntityRepositoryFactory)
 container.register(services.repositories.EntityRepository,
@@ -44,26 +48,36 @@ container.register(services.repositories.EntityRepository,
                     stored_type=entities.Issuer,
                     path=config.option_as_path('DATA_PATH') / 'issuer')
 
+badge_service = container.resolve(services.badge.BadgeService)
+container.register(services.badge.BadgeService, instance=badge_service)
+person_service = container.resolve(services.person.PersonService)
+container.register(services.person.PersonService, instance=person_service)
+award_service = container.resolve(services.award.AwardService)
+container.register(services.award.AwardService, instance=award_service)
+
 
 def set_debug():
     if config['DEBUG']:
         # Activar el modo de depuración de asyncio.
         os.environ['PYTHONASYNCIODEBUG'] = "1"
         # Configurar el logger a nivel logging.DEBUG
-        logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-                datefmt='%Y-%m-%d:%H:%M:%S',
-                level=logging.DEBUG)
+        logging.basicConfig(format='%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+                        datefmt='%Y-%m-%d:%H:%M:%S',
+                        level=logging.DEBUG)
 
 def init_app(argv):
     set_debug()
     app = web.Application()
     app.add_subapp('/api', adapters.api.WebService(
         config=config,
-        badge_service=container.resolve(services.badge.BadgeService)
+        badge_service=container.resolve(services.badge.BadgeService),
+        award_service=container.resolve(services.award.AwardService),
+        issuer_service=container.resolve(services.issuer.IssuerService)
     ).app)
     app.add_subapp('/slack', adapters.slack.SlackApplication(
         config=config,
-        badge_service=container.resolve(services.badge.BadgeService)
+        badge_service=container.resolve(services.badge.BadgeService),
+        award_service=container.resolve(services.award.AwardService)
     ).app)
     return app
 
