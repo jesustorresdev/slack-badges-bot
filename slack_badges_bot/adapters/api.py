@@ -24,7 +24,7 @@ from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.award import AwardService
 from slack_badges_bot.services.issuer import IssuerService
 from slack_badges_bot.services.config import ConfigService
-from slack_badges_bot.adapters.openbadges import OpenBadges
+from slack_badges_bot.utils.openbadges import OpenBadges
 from errors import *
 from aiohttp_validate import validate
 

@@ -1,5 +1,6 @@
 """Servicios para gestionar las insignias (badges).
 """
+import logging
 
 from slack_badges_bot.entities import EntityID, Badge, BadgeImage
 from slack_badges_bot.services.repositories import EntityRepositoryFactory

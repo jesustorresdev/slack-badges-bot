@@ -1,3 +1,5 @@
+import logging
+
 from slack_badges_bot.services.entity import EntityService
 from slack_badges_bot.services.repositories import EntityRepositoryFactory
 from slack_badges_bot.entities import Person
