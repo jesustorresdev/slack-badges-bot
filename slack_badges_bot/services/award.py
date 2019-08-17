@@ -48,12 +48,21 @@ class AwardService(EntityService):
     def award_byemailandname(self, email, badge_name):
         ids = self.retrieve_ids()
         badge = self.badge_service.badge_byname(badge_name)
-        for award_id in ids:
-            award = self.retrieve(award_id)
+        if not badge:
+            return None
+        for award in [self.retrieve(award_id) for award_id in ids]:
             if award.person.email == email\
                 and award.badge.name == badge.name:
                 return award
         return None
+
+    def byemail(self, email):
+        award_list = []
+        ids = self.retrieve_ids()
+        for award in [self.retrieve(award_id) for award_id in ids]:
+            if award.person.email == email:
+                award_list.append(award)
+        return award_list
 
     #https://github.com/mozilla/openbadges-specification/blob/master/Assertion/latest.md
     def issue(self, slack_name: str, slack_id: str,
@@ -64,7 +73,6 @@ class AwardService(EntityService):
                                   badge_name=badge_name)
         award.image = self.bakery(award)
         self.repository.save(award, overwrite=True)
-        logging.debug(award)
         return award
 
     #https://www.imsglobal.org/sites/default/files/Badges/OBv2p0Final/baking/index.html#baking

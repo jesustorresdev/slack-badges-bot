@@ -35,9 +35,19 @@ class BlockBuilder:
                 ]
 
     def badges_block(self, badges):
-        block = []
+        s = 's' if len(badges) is not 1 else ''
+        colon = ':' if len(badges) > 0 else '.'
+        block = [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"En total hay *{len(badges)}* medalla{s}{colon}"
+                            }
+                    }
+                ]
         for badge in badges:
-            image_url = self.config["BADGES_URL"] + f"/{badge.id_str}/image"
+            image_url = self.config['BADGES_IMAGE_URL'].format(badge.id_str)
             badge_block = self._badge_block(name=badge.name,
                                            description=badge.description,
                                            criteria=badge.criteria,
@@ -67,3 +77,36 @@ class BlockBuilder:
                         }
                     }
                 ]
+
+    def help_block(self, info):
+        return [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": info
+                        }
+                    }
+                ]
+
+    def award_list(self, awards, slack_username):
+        s = 's' if len(awards) is not 1 else ''
+        colon = ':' if len(awards) is not 0 else '.'
+        block = [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"{slack_username} tiene *{len(awards)}* medalla{s}{colon}"
+                            }
+                    }
+                ]
+        for award in awards:
+            image_url = self.config['AWARDS_IMAGE_URL'].format(award.id_str)
+            badge_block = self._badge_block(name=award.badge.name,
+                                           description=award.badge.description,
+                                           criteria=award.badge.criteria,
+                                           image_url=image_url)
+            for element in badge_block:
+                block.append(element)
+        return block

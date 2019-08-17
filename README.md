@@ -33,7 +33,7 @@ sudo apt install python3.7
 1. Instalar pip3.7
 ```command
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-sudo python3.7 get-pip.py
+python3.7 get-pip.py --user
 ```
 
 1. Instalar pipenv

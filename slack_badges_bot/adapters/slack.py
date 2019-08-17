@@ -12,9 +12,10 @@ import slack
 import openbadges_bakery
 import time
 
-
 from aiohttp import web
 from io import BytesIO
+from asyncache import cached
+from cachetools import TTLCache
 
 from slack_badges_bot.utils import info
 
@@ -49,8 +50,6 @@ class SlackApplication:
         self.slackclient = slack.WebClient(token=self.config['SLACK_OAUTH_ACCESS_TOKEN'],
                                             run_async=True)
         self.openbadges = OpenBadges(config)
-        self.users_list_time = 0
-        self.users_info_time = 0
         self.errortext = 'Error! :cry:'
 
     async def verify_request(self, request: web.Request):
@@ -92,7 +91,7 @@ class SlackApplication:
             if text.startswith('list all'):
                 response = self.list_all_badges()
             elif text.startswith('list'):
-                response = self.list_user_badges(text.replace('list','',1))
+                response = await self.list_user_badges(text.replace('list','',1))
             elif text.startswith('give'):
                 response = await self.give_badge(text.replace('give','',1))
             elif text.startswith('help'):
@@ -108,7 +107,6 @@ class SlackApplication:
         badge_ids = self.badge_service.retrieve_ids()
         badges = [self.badge_service.retrieve(badge_id) for badge_id in badge_ids]
         s = 's' if len(badges) > 1 else ''
-        block = self.blockbuilder.badges_block(badges)
         return web.json_response(\
                 {
                     "response_type": "ephemeral",
@@ -117,8 +115,17 @@ class SlackApplication:
                 },\
                 status=200)
 
-    def list_user_badges(self, text):
-        raise NotImplementedError
+    async def list_user_badges(self, text):
+        slack_username  = text
+        slack_id = await self.slack_id(slack_username)
+        slack_email = await self.slack_email(slack_id)
+        awards = self.award_service.byemail(slack_email)
+        return web.json_response(\
+                {
+                    "response_type": "ephemereal",
+                    "blocks": self.blockbuilder.award_list(awards, slack_username)
+                },\
+                status=200)
 
     async def give_badge(self, text):
         '''
@@ -127,7 +134,7 @@ class SlackApplication:
         de que algún parámetro sea incorrecto
         '''
         slack_username, badge_name = text.strip().split(' ', 1)
-        slack_id = await self.slack_id(slack_username.replace('@', ''))
+        slack_id = await self.slack_id(slack_username)
         if not slack_id:
             raise ValueError(f'Nombre de usuario no encontrado {slack_username}')
         # Obtener email o devolver error
@@ -144,7 +151,6 @@ class SlackApplication:
         return web.json_response(\
                 {
                     "response_type": "in_channel",
-                    "text": f"Felicidades!!!",
                     "blocks": self.blockbuilder.award_block(award),
                 },\
                 status=200)
@@ -152,28 +158,43 @@ class SlackApplication:
 
     #https://api.slack.com/methods/users.list
     async def slack_id(self, slack_username):
-        # Actualizar cache cada 3 minutos
-        if time.time() - self.users_list_time > 180:
-            self.users_list = None
-        if not self.users_list:
-            self.users_list_time = time.time()
-            self.users_list = await self.slackclient.users_list()
-        for member in self.users_list['members']:
+        slack_username = slack_username.replace('@', '').strip()
+        users_list = await self.users_list()
+        for member in users_list['members']:
             if member['name'] == slack_username:
                 return member['id']
+        raise ValueError(f'{slack_username} not found')
+
+    @cached(TTLCache(maxsize=1, ttl=180))
+    async def users_list(self):
+        return await self.slackclient.users_list()
 
     #https://api.slack.com/methods/users.info
     async def slack_email(self, slack_id):
-        # Actualizar cache cada 3 minutos
-        if time.time() - self.users_info_time > 180:
-            self.users_info = None
-        if not self.users_info:
-            self.users_info_time = time.time()
-            self.users_info = await self.slackclient.users_info(user=slack_id)
-        return self.users_info['user']['profile']['email']
+        users_info = await self.users_info(slack_id)
+        return users_info['user']['profile']['email']
+
+    @cached(TTLCache(maxsize=1, ttl=180))
+    async def users_info(self, slack_id):
+        return await self.slackclient.users_info(user=slack_id)
 
     def help_info(self):
-        raise NotImplementedError
+        info = """
+        Comandos:
+            */badges list all*
+                Muestra una lista de todas las medallas existentes.
+            */badges give @usuario [medalla]*
+                Dar una medalla a un usuario. La medalla se indica por su nombre, por ejemplo:
+                /badges give @Martín Medalla de oro
+            */badges list @usuario*
+                Muestra una lista con las medallas que se le han dado a un usuario.
+        """
+        return web.json_response(\
+                {
+                    "response_type": "ephemereal",
+                    "blocks": self.blockbuilder.help_block(info),
+                },\
+                status=200)
 
     def _setup_routes(self):
         self.app.router.add_post('/slash-command', self.slash_command_handler)
