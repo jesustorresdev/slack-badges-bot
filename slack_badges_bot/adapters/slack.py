@@ -170,7 +170,22 @@ class SlackApplication:
         return await self.slackclient.users_info()
 
     def help_info(self):
-        raise NotImplementedError
+        info = """
+        Comandos:
+            */badges list all*
+                Muestra una lista de todas las medallas existentes.
+            */badges give @usuario [medalla]*
+                Dar una medalla a un usuario. La medalla se indica por su nombre, por ejemplo:
+                /badges give @Martín Medalla de oro
+            */badges list @usuario*
+                Muestra una lista con las medallas que se le han dado a un usuario.
+        """
+        return web.json_response(\
+                {
+                    "response_type": "ephemereal",
+                    "blocks": self.blockbuilder.help_block(info),
+                },\
+                status=200)
 
     def _setup_routes(self):
         self.app.router.add_post('/slash-command', self.slash_command_handler)

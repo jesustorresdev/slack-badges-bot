@@ -16,9 +16,9 @@ class BlockBuilder:
         badge = award.badge.name
         return [
                 {
-                    "type": "section",
+                    "type": "sectio",
                     "text": {
-                        "type": "mrkdwn",
+                        "type": "mrkdw",
                         "text": f"*Nueva medalla para {user}*\n¡Felicidades {user}! has recibido {badge}"
                         }
                     },
@@ -67,3 +67,15 @@ class BlockBuilder:
                         }
                     }
                 ]
+
+    def help_block(self, info):
+        return [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": info
+                        }
+                    }
+                ]
+
