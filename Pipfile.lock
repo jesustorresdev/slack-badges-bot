@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a64b3401c3a72619ea32e98620bc3aa8bbeaf703069976d4fb8aa92693ad24e3"
+            "sha256": "b93bea35bf1821a40b5fc47d16166c3042ae0c438fee2b8cb1c30d628d27d9d8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -58,6 +58,13 @@
             ],
             "version": "==3.0.1"
         },
+        "asyncache": {
+            "hashes": [
+                "sha256:c741b3ccef2c5291b3da05d97bab3cc8d50f2ac8efd7fd79d47e3d7b6a3774de"
+            ],
+            "index": "pypi",
+            "version": "==0.1.1"
+        },
         "attrs": {
             "hashes": [
                 "sha256:69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79",
@@ -68,6 +75,14 @@
         "badge-cli": {
             "editable": true,
             "path": "./badge-cli"
+        },
+        "cachetools": {
+            "hashes": [
+                "sha256:428266a1c0d36dc5aca63a2d7c5942e88c2c898d72139fca0e97fdd2380517ae",
+                "sha256:8ea2d3ce97850f31e4a08b0e2b5e6c34997d7216a9d2c98e0f3978630d4da69a"
+            ],
+            "index": "pypi",
+            "version": "==3.1.1"
         },
         "certifi": {
             "hashes": [

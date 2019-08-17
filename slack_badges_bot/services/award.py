@@ -48,6 +48,8 @@ class AwardService(EntityService):
     def award_byemailandname(self, email, badge_name):
         ids = self.retrieve_ids()
         badge = self.badge_service.badge_byname(badge_name)
+        if not badge:
+            return None
         for award_id in ids:
             award = self.retrieve(award_id)
             if award.person.email == email\

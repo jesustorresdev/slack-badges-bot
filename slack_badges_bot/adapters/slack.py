@@ -12,9 +12,10 @@ import slack
 import openbadges_bakery
 import time
 
-
 from aiohttp import web
 from io import BytesIO
+from asyncache import cached
+from cachetools import TTLCache
 
 from slack_badges_bot.utils import info
 
@@ -49,8 +50,6 @@ class SlackApplication:
         self.slackclient = slack.WebClient(token=self.config['SLACK_OAUTH_ACCESS_TOKEN'],
                                             run_async=True)
         self.openbadges = OpenBadges(config)
-        self.users_list_time = 0
-        self.users_info_time = 0
         self.errortext = 'Error! :cry:'
 
     async def verify_request(self, request: web.Request):
@@ -152,25 +151,23 @@ class SlackApplication:
 
     #https://api.slack.com/methods/users.list
     async def slack_id(self, slack_username):
-        # Actualizar cache cada 3 minutos
-        if time.time() - self.users_list_time > 180:
-            self.users_list = None
-        if not self.users_list:
-            self.users_list_time = time.time()
-            self.users_list = await self.slackclient.users_list()
-        for member in self.users_list['members']:
+        users_list = await self.users_list()
+        for member in users_list['members']:
             if member['name'] == slack_username:
                 return member['id']
 
+    @cached(TTLCache(maxsize=1, ttl=180))
+    async def users_list(self):
+        return await self.slackclient.users_list()
+
     #https://api.slack.com/methods/users.info
     async def slack_email(self, slack_id):
-        # Actualizar cache cada 3 minutos
-        if time.time() - self.users_info_time > 180:
-            self.users_info = None
-        if not self.users_info:
-            self.users_info_time = time.time()
-            self.users_info = await self.slackclient.users_info(user=slack_id)
-        return self.users_info['user']['profile']['email']
+        users_info = await self.users_info()
+        return users_info['user']['profile']['email']
+
+    @cached(TTLCache(maxsize=1, ttl=180))
+    async def users_info(self):
+        return await self.slackclient.users_info()
 
     def help_info(self):
         raise NotImplementedError
