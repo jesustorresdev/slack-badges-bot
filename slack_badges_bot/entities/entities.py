@@ -74,6 +74,7 @@ class Issuer:
     name: str
     url: str
     description: str
+    revocationList: dict
 
 
 if __name__ == '__main__': # Probando

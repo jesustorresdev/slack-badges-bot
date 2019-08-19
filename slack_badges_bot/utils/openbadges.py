@@ -38,7 +38,8 @@ class OpenBadges:
         return {
                 "name": issuer.name,
                 "url": issuer.url,
-                "description": issuer.description
+                "description": issuer.description,
+                "revocationList": self.config['REVOCATION_URL']
                 }
 
     def badge_class(self, badge: Badge):

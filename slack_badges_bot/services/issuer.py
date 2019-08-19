@@ -5,3 +5,4 @@ from slack_badges_bot.entities import Issuer
 class IssuerService(EntityService):
     def __init__(self, entity_repository_factory: EntityRepositoryFactory):
         self.repository = entity_repository_factory(Issuer)
+

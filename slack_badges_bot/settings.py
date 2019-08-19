@@ -22,6 +22,7 @@ class DefaultConfig:
     AWARDS_IMAGE_URL = f'{AWARDS_URL}' + '/{}/image' # se usa .format para insertar el id
     ISSUER_URL = f'{API_URL}/issuer'
     ISSUER_ID = 'issuer' # nombre del json en data/issuer/
+    REVOCATION_URL = f'{API_URL}/revocation'
     DATA_PATH = '../data'
     BADGES_PATH = '../data/badges'
     BADGE_NAME_MIN_LENGTH = 5
