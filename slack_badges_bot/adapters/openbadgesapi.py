@@ -23,11 +23,9 @@ class OpenBadgesWebService:
         self.app = web.Application()
         self.openbadges = OpenBadges(config)
         self._setup_routes()
-        logging.debug('Started OPENBADGESAWARENLASKDFJ')
 
     async def badge_handler(self, request):
         try:
-            logging.debug('LLEGA REQUESST')
             badge_id = request.match_info['badge_id']
             requested_data = request.match_info['requested_data']
             badge = self.badge_service.retrieve(badge_id)
@@ -52,7 +50,6 @@ class OpenBadgesWebService:
             award_id = request.match_info['award_id']
             requested_data = request.match_info['requested_data']
             award = self.award_service.retrieve(award_id)
-            logging.debug(award)
             if requested_data == 'json':
                 badge_assertion = self.openbadges.badge_assertion(award)
                 response = web.json_response(badge_assertion)
@@ -72,7 +69,6 @@ class OpenBadgesWebService:
         try:
             issuer = self.issuer_service.retrieve(self.config['ISSUER_ID'])
             issuer_organization = self.openbadges.issuer_organization(issuer)
-            logging.debug(issuer_organization)
             response = web.json_response(issuer_organization)
         except:
             traceback.print_exc(file=sys.stdout)
