@@ -70,14 +70,18 @@ def init_app(argv):
     app = web.Application()
     app.add_subapp('/api', adapters.api.WebService(
         config=config,
-        badge_service=container.resolve(services.badge.BadgeService),
-        award_service=container.resolve(services.award.AwardService),
-        issuer_service=container.resolve(services.issuer.IssuerService)
+        badge_service=container.resolve(services.badge.BadgeService)
     ).app)
     app.add_subapp('/slack', adapters.slack.SlackApplication(
         config=config,
         badge_service=container.resolve(services.badge.BadgeService),
         award_service=container.resolve(services.award.AwardService)
+    ).app)
+    app.add_subapp('/openbadges', adapters.openbadgesapi.OpenBadgesWebService(
+        config=config,
+        badge_service=container.resolve(services.badge.BadgeService),
+        award_service=container.resolve(services.award.AwardService),
+        issuer_service=container.resolve(services.issuer.IssuerService)
     ).app)
     return app
 

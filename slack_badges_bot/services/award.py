@@ -23,7 +23,7 @@ class AwardService(EntityService):
         self.badge_service = badge_service
         self.openbadges = OpenBadges(config)
 
-    def create_award(self, slack_name: str, slack_id: str,
+    def create_award(self, *, slack_name: str, slack_id: str,
                         email: str, badge_name: str):
         """
         Crea una asociación medalla-persona con la imagen de la medalla [badge_name]

@@ -1,1 +1,1 @@
-from . import api, repositories, slack
+from . import api, repositories, slack, openbadgesapi

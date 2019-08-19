@@ -12,7 +12,7 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 class DefaultConfig:
     DEBUG = True
-    API_URL = 'http://vituin-chat.iaas.ull.es/api'
+    API_URL = 'http://vituin-chat.iaas.ull.es/openbadges'
     BADGES_URL = f'{API_URL}/badges'
     AWARDS_URL = f'{API_URL}/awards'
     BADGES_JSON_URL = f'{BADGES_URL}' + '/{}/json' # se usa .format para insertar el id

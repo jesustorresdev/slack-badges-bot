@@ -17,7 +17,7 @@ class PersonService(EntityService):
                 return person
         return None
 
-    def create_person(self, slack_name: str, slack_id: str, email: str):
+    def create_person(self, *, slack_name: str, slack_id: str, email: str):
         if self.person_byemail(email):
             raise ValueError(f'{email} ya existe!')
         person = Person(id=EntityID.generate_unique_id(),
