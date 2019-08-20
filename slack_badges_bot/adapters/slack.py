@@ -23,7 +23,6 @@ from slack_badges_bot.entities import Badge, Award, BadgeImage
 
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.award import AwardService
-from slack_badges_bot.services.issuer import IssuerService
 from slack_badges_bot.services.config import ConfigService
 
 from slack_badges_bot.utils.blockbuilder import BlockBuilder

@@ -13,7 +13,7 @@ from pathlib import Path
 from io import BytesIO
 
 
-from slack_badges_bot.entities import Badge, Award, Issuer
+from slack_badges_bot.entities import Badge, Award
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.config import ConfigService
 from errors import *

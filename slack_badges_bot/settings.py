@@ -21,7 +21,6 @@ class DefaultConfig:
     AWARDS_JSON_URL = f'{AWARDS_URL}' + '/{}/json' # se usa .format para insertar el id
     AWARDS_IMAGE_URL = f'{AWARDS_URL}' + '/{}/image' # se usa .format para insertar el id
     ISSUER_URL = f'{API_URL}/issuer'
-    ISSUER_ID = 'issuer' # nombre del json en data/issuer/
     REVOCATION_URL = f'{API_URL}/revocation'
     DATA_PATH = '../data'
     BADGES_PATH = '../data/badges'
@@ -31,6 +30,8 @@ class DefaultConfig:
     SLACK_SIGNING_SECRET = os.getenv('SLACK_SIGNING_SECRET')
     SLACK_OAUTH_ACCESS_TOKEN = os.getenv('SLACK_OAUTH_ACCESS_TOKEN')
     SLACK_VERIFY_SECONDS = 5 * 60
+    OPENBADGES_ISSUER_NAME = 'Slack Badges Bot'
+    OPENBADGES_ISSUER_DESCRIPTION = 'Herramienta para emitir medallas que une el chat de Slack con el estándar de OpenBadges'
 
     # Ver https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.run_app
     # Para los valores por defecto de estas opciones

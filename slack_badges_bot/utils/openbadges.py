@@ -1,5 +1,5 @@
 import json
-from slack_badges_bot.entities import Badge, Award, Issuer
+from slack_badges_bot.entities import Badge, Award
 
 class OpenBadges:
     """
@@ -34,12 +34,11 @@ class OpenBadges:
                 "image": self.config['AWARDS_IMAGE_URL'].format(award.id_str)
                 }
 
-    def issuer_organization(self, issuer: Issuer):
+    def issuer_organization(self):
         return {
-                "name": issuer.name,
-                "url": issuer.url,
-                "description": issuer.description,
-                "revocationList": self.config['REVOCATION_URL']
+                "name": self.config['OPENBADGES_ISSUER_NAME'],
+                "url": self.config['ISSUER_URL'],
+                "description": self.config['OPENBADGES_ISSUER_DESCRIPTION']
                 }
 
     def badge_class(self, badge: Badge):

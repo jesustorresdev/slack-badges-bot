@@ -7,19 +7,16 @@ from aiohttp import web
 
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.award import AwardService
-from slack_badges_bot.services.issuer import IssuerService
 from slack_badges_bot.services.config import ConfigService
 from slack_badges_bot.utils.openbadges import OpenBadges
 
 class OpenBadgesWebService:
     def __init__(self, config: ConfigService,
             badge_service: BadgeService,
-            award_service: AwardService,
-            issuer_service: IssuerService):
+            award_service: AwardService):
         self.config = config
         self.badge_service = badge_service
         self.award_service = award_service
-        self.issuer_service = issuer_service
         self.app = web.Application()
         self.openbadges = OpenBadges(config)
         self._setup_routes()
@@ -67,8 +64,7 @@ class OpenBadgesWebService:
     async def issuer_handler(self, request):
 # Este método devuelve el JSON con la info del issuer
         try:
-            issuer = self.issuer_service.retrieve(self.config['ISSUER_ID'])
-            issuer_organization = self.openbadges.issuer_organization(issuer)
+            issuer_organization = self.openbadges.issuer_organization()
             response = web.json_response(issuer_organization)
         except:
             traceback.print_exc(file=sys.stdout)
