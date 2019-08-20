@@ -12,6 +12,7 @@ setup(
         'Click',
         'requests',
         'Pillow',
+        'cachetools',
     ],
     entry_points='''
         [console_scripts]
