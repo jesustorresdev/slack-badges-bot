@@ -13,7 +13,7 @@ pillow = "*"
 badge-cli = {path = "./badge-cli",editable = true}
 aiohttp-validate = "*"
 slackclient = "*"
-openbadges-bakery = {git = "https://github.com/concentricsky/openbadges-bakery",editable = true}
+openbadges-bakery = {editable = true,git = "https://github.com/concentricsky/openbadges-bakery"}
 cachetools = "*"
 asyncache = "*"
 

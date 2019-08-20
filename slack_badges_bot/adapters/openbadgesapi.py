@@ -76,8 +76,7 @@ class OpenBadgesWebService:
         return web.json_response(issuer.revocationList)
 
     def _setup_routes(self):
-        self.app.router.add_get('/badges/{badge_id}/{requested_data}', self.badge_handler)
-        self.app.router.add_get('/issuer', self.issuer_handler)
-        self.app.router.add_get('/awards/{award_id}/{requested_data}', self.award_handler)
-        self.app.router.add_get('/revocation', self.revocation_handler)
-
+        #self.app.router.add_get('/badges/{badge_id}/{requested_data}', self.badge_handler, name='badges')
+        self.app.router.add_get(self.config['API_BADGES'], self.badge_handler, name='badges')
+        self.app.router.add_get(self.config['API_ISSUER'], self.issuer_handler)
+        self.app.router.add_get(self.config['API_AWARDS'], self.award_handler)

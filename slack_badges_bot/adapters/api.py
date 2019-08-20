@@ -121,4 +121,4 @@ class WebService:
         raise BadgeImageError(f'WebService.urltobytes: couldn\'t dowload badge image from {url}')
 
     def _setup_routes(self):
-        self.app.router.add_post('/badges/create', self.create_badge_handler)
+        self.app.router.add_post(self.config['CREATE_BADGE_PATH'], self.create_badge_handler)

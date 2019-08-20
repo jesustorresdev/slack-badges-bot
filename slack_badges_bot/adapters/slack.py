@@ -11,6 +11,7 @@ import hashlib
 import slack
 import openbadges_bakery
 import time
+import asyncio
 
 from aiohttp import web
 from io import BytesIO
@@ -23,6 +24,7 @@ from slack_badges_bot.entities import Badge, Award, BadgeImage
 
 from slack_badges_bot.services.badge import BadgeService
 from slack_badges_bot.services.award import AwardService
+from slack_badges_bot.services.person import PersonService
 from slack_badges_bot.services.config import ConfigService
 
 from slack_badges_bot.utils.blockbuilder import BlockBuilder
@@ -36,12 +38,14 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 class SlackApplication:
 
     def __init__(self, config: ConfigService,
-                    badge_service: BadgeService,
-                    award_service: AwardService):
+                       badge_service: BadgeService,
+                       award_service: AwardService,
+                       person_service: PersonService):
         self.config = config
         self.secret = self.config['SLACK_SIGNING_SECRET']
         self.badge_service = badge_service
         self.award_service = award_service
+        self.person_service = person_service
 
         self.app = web.Application()
         self._setup_routes()
@@ -50,6 +54,24 @@ class SlackApplication:
                                             run_async=True)
         self.openbadges = OpenBadges(config)
         self.errortext = 'Error! :cry:'
+        self._setup_users()
+
+    def _setup_users(self):
+        person_list = []
+# Obtener todas las personas
+        for person_id in self.person_service.retrieve_ids():
+            person_list.append(self.person_service.retrieve(person_id))
+
+        loop = asyncio.get_event_loop()
+        users_list = loop.run_until_complete(self.users_list())
+
+        for member in users_list['members']:
+            logging.debug(
+                    json.dumps({key:member[key] for key in member if member[key] is not dict},
+                        indent=True)
+                    )
+
+
 
     async def verify_request(self, request: web.Request):
         #https://api.slack.com/docs/verifying-requests-from-slack

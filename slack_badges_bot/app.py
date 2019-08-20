@@ -69,7 +69,8 @@ def init_app(argv):
     app.add_subapp('/slack', adapters.slack.SlackApplication(
         config=config,
         badge_service=container.resolve(services.badge.BadgeService),
-        award_service=container.resolve(services.award.AwardService)
+        award_service=container.resolve(services.award.AwardService),
+        person_service=container.resolve(services.person.PersonService)
     ).app)
     app.add_subapp('/openbadges', adapters.openbadgesapi.OpenBadgesWebService(
         config=config,
