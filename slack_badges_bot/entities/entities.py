@@ -68,12 +68,13 @@ class Award:
     def id_str(self):
         return str(self.id.hex)
 
-@dataclass
-class Issuer:
-    id: EntityID
-    name: str
-    url: str
-    description: str
+#@dataclass
+#class Issuer:
+#    id: EntityID
+#    name: str
+#    url: str
+#    description: str
+#    revocationList: dict
 
 
 if __name__ == '__main__': # Probando

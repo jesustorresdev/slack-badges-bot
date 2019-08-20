@@ -12,21 +12,30 @@ __copyright__ = "Copyright 2019 {0} <{1}>".format(__author__, __contact__)
 
 class DefaultConfig:
     DEBUG = True
-    API_URL = 'http://vituin-chat.iaas.ull.es/api'
-    BADGES_URL = f'{API_URL}/badges'
-    AWARDS_URL = f'{API_URL}/awards'
-    BADGES_JSON_URL = f'{BADGES_URL}' + '/{}/json' # se usa .format para insertar el id
-    BADGES_IMAGE_URL = f'{BADGES_URL}' + '/{}/image' # se usa .format para insertar el id
-    BADGES_CRITERIA_URL = f'{BADGES_URL}' + '/{}/criteria' # se usa .format para insertar el id
-    AWARDS_JSON_URL = f'{AWARDS_URL}' + '/{}/json' # se usa .format para insertar el id
-    AWARDS_IMAGE_URL = f'{AWARDS_URL}' + '/{}/image' # se usa .format para insertar el id
-    ISSUER_URL = f'{API_URL}/issuer'
-    ISSUER_ID = 'issuer' # nombre del json en data/issuer/
+
+# API de openbadges
+    API_URL = 'http://vituin-chat.iaas.ull.es/openbadges'
+    API_BADGES = '/badges/{badge_id}/{requested_data}'
+    API_AWARDS = '/awards/{award_id}/{requested_data}'
+    API_ISSUER = '/issuer'
+    BADGES_URL = API_URL + API_BADGES
+    AWARDS_URL = API_URL + API_AWARDS
+    ISSUER_URL = API_URL + API_ISSUER
+    OPENBADGES_ISSUER_NAME = 'Slack Badges Bot'
+    OPENBADGES_ISSUER_DESCRIPTION = 'Herramienta para emitir medallas que une el chat de Slack con el estándar de OpenBadges'
+
+# API de administración
+    CREATE_BADGE_PATH = '/badges/create'
+
+# Rutas de persistencia
     DATA_PATH = '../data'
     BADGES_PATH = '../data/badges'
+
+# Opciones de configuración varias
     BADGE_NAME_MIN_LENGTH = 5
     BADGE_DESCRIPTION_MIN_LENGTH = 5
     BADGE_MIN_CRITERIA = 1
+# Parámetros de slack
     SLACK_SIGNING_SECRET = os.getenv('SLACK_SIGNING_SECRET')
     SLACK_OAUTH_ACCESS_TOKEN = os.getenv('SLACK_OAUTH_ACCESS_TOKEN')
     SLACK_VERIFY_SECONDS = 5 * 60

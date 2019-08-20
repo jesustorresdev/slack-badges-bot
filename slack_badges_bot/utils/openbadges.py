@@ -1,5 +1,5 @@
 import json
-from slack_badges_bot.entities import Badge, Award, Issuer
+from slack_badges_bot.entities import Badge, Award
 
 class OpenBadges:
     """
@@ -25,28 +25,28 @@ class OpenBadges:
                     "hashed": False,
                     "identity": award.person.email
                     },
-                "badge": self.config['BADGES_JSON_URL'].format(award.badge.id_str),
+                "badge": self.config['BADGES_URL'].format(badge_id=award.badge.id_str, requested_data='json'),
                 "verify": {
                     "type": "hosted",
-                    "url": self.config['AWARDS_JSON_URL'].format(award.id_str)
+                    "url": self.config['AWARDS_URL'].format(award_id=award.id_str, requested_data='json')
                     },
                 "issuedOn": award.timestamp,
-                "image": self.config['AWARDS_IMAGE_URL'].format(award.id_str)
+                "image": self.config['AWARDS_URL'].format(award_id=award.id_str, requested_data='image')
                 }
 
-    def issuer_organization(self, issuer: Issuer):
+    def issuer_organization(self):
         return {
-                "name": issuer.name,
-                "url": issuer.url,
-                "description": issuer.description
+                "name": self.config['OPENBADGES_ISSUER_NAME'],
+                "url": self.config['ISSUER_URL'],
+                "description": self.config['OPENBADGES_ISSUER_DESCRIPTION']
                 }
 
     def badge_class(self, badge: Badge):
         return {
                 "name": badge.name,
                 "description": badge.description,
-                "criteria": self.config['BADGES_CRITERIA_URL'].format(badge.id_str),
-                "image": self.config['BADGES_IMAGE_URL'].format(badge.id_str),
+                "criteria": self.config['BADGES_URL'].format(badge_id=badge.id_str, requested_data='criteria'),
+                "image": self.config['BADGES_URL'].format(badge_id=badge.id_str, requested_data='image'),
                 "issuer": self.config['ISSUER_URL']
                 }
 

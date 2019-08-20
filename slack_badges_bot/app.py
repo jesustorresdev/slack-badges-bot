@@ -25,7 +25,6 @@ container.register(services.config.ConfigService, instance=config)
 container.register(services.badge.BadgeService)
 container.register(services.award.AwardService)
 container.register(services.person.PersonService)
-container.register(services.issuer.IssuerService)
 
 container.register(services.repositories.EntityRepositoryFactory)
 container.register(services.repositories.EntityRepository,
@@ -42,11 +41,6 @@ container.register(services.repositories.EntityRepository,
                     adapters.repositories.EntityJsonRepository,
                     stored_type=entities.Award,
                     path=config.option_as_path('DATA_PATH') / 'awards')
-
-container.register(services.repositories.EntityRepository,
-                    adapters.repositories.EntityJsonRepository,
-                    stored_type=entities.Issuer,
-                    path=config.option_as_path('DATA_PATH') / 'issuer')
 
 badge_service = container.resolve(services.badge.BadgeService)
 container.register(services.badge.BadgeService, instance=badge_service)
@@ -70,11 +64,15 @@ def init_app(argv):
     app = web.Application()
     app.add_subapp('/api', adapters.api.WebService(
         config=config,
-        badge_service=container.resolve(services.badge.BadgeService),
-        award_service=container.resolve(services.award.AwardService),
-        issuer_service=container.resolve(services.issuer.IssuerService)
+        badge_service=container.resolve(services.badge.BadgeService)
     ).app)
     app.add_subapp('/slack', adapters.slack.SlackApplication(
+        config=config,
+        badge_service=container.resolve(services.badge.BadgeService),
+        award_service=container.resolve(services.award.AwardService),
+        person_service=container.resolve(services.person.PersonService)
+    ).app)
+    app.add_subapp('/openbadges', adapters.openbadgesapi.OpenBadgesWebService(
         config=config,
         badge_service=container.resolve(services.badge.BadgeService),
         award_service=container.resolve(services.award.AwardService)
