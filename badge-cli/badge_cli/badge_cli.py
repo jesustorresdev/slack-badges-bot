@@ -4,6 +4,8 @@ import requests
 import json
 import base64
 import badge_cli.slack_badges_bot_client as api_client
+
+from cachetools import cached, TTLCache
 #from PIL import Image
 
 @click.group()
@@ -23,7 +25,7 @@ def cli(apihelp):
 @click.argument('json_file', type=click.File('rb'))
 @click.argument('image_file', type=click.File('rb'), required=False)
 def create(json_file, image_file):
-    """Comando para crear medallas.
+    """Crear medallas.
 
     Más información en la wiki del proyecto:
 
@@ -32,10 +34,13 @@ def create(json_file, image_file):
     r = api_client.create_badge(json_file, image_file)
     click.echo(r)
 
+#TODO: Caché no funciona siempre hace la petición
+@cached(TTLCache(maxsize=1, ttl=180))
 def person_byid(person_id):
     persons = api_client.persons()
     return [person for person in persons if person["id"] == person_id][0]
 
+@cached(TTLCache(maxsize=1, ttl=180))
 def persons_summary():
     persons = api_client.persons()
     return {person['id']:person['real_name'] for person in persons}
@@ -46,7 +51,7 @@ def persons_summary():
 @click.argument('person_id', required=False)
 def list(persons, permissions, person_id):
     """
-    Comando para listar personas y permisos.
+    Listar personas y permisos.
     """
     try:
         if persons:
@@ -66,37 +71,36 @@ def list(persons, permissions, person_id):
         traceback.print_exc(file=sys.stdout)
         response = str(error)
 
-    if isinstance(response, dict):
-        response = json.dumps(response,
-                indent=True,
-                ensure_ascii=False).encode("utf-8")
+    #if isinstance(response, dict):
+    #    response = json.dumps(response,
+    #            indent=True,
+    #            ensure_ascii=False).encode("utf-8")
     click.echo(response)
 
 @cli.command()
-@click.option('--permissions', '-pm', help="modificar los permisos de una persona")
+@click.option('--set', '-s', 'set_', is_flag=True, help="Especificar los permisos de una persona")
+@click.option('--add', '-a', 'add_', is_flag=True, help="Modificar los permisos de una persona")
+@click.option('--remove', '-rm', 'remove_', is_flag=True, help="Quitar los permisos de una persona")
 @click.argument('person_id')
-@click.argument('permissions', nargs=-1)
-def add(json_file):
-    """Comando para modificar los permisos de una ersona.
+@click.argument('permissions_list', nargs=-1)
+def perm(set_, add_, remove_, person_id, permissions_list):
+    """Modificar los permisos de una ersona.
 
     Más informacion en la página de la wiki:
 
     https://github.com/alu0100832211/slack-badges-bot/wiki/Modificar-los-permisos-de-una-persona
     """
-    response = api_client.add_permission(person_id, permission)
+    if set_:
+        action = 'set'
+    elif add_:
+        action = 'add'
+    elif remove_:
+        action = 'remove'
+    else:
+        action = 'no action specified'
+    permissions_list = [permission for permission in permissions_list]
+    response = api_client.update_permissions(person_id, permissions_list, action)
     click.echo(response)
-
-@cli.command()
-@click.argument('--permissions', '-pm', help="Quitar permisos")
-@click.argument('person_id')
-def remove():
-    """Comando para quitar permisos a una persona
-
-    Más informacion en la página de la wiki:
-
-    https://github.com/alu0100832211/slack-badges-bot/wiki/Modificar-los-permisos-de-una-persona
-    """
-    raise NotImplementedError
 
 """
 badgecli create oro.json oro.png
@@ -105,5 +109,5 @@ badgecli list --persons
 badgecli list --persons person_id
 badgecli list --permissions
 badgecli list --permissions person_id
-badgecli set --permissions person_id permission permission permission
+badgecli perm --set
 """

@@ -23,7 +23,7 @@ def persons():
         response = requests.get(config.PERSONS_LIST)
         response = response.json()
     except Exception as error:
-        response = error
+        response = str(error)
     return response
 
 
@@ -35,13 +35,17 @@ def permissions(person_id=None):
         response = error
     return response
 
-def add_permission(person_id, permission):
+def update_permissions(person_id, permission_list, action):
     try:
         data = {
                 "person_id": person_id,
-                "permissions": permission
+                "permissions": permission_list,
+                "action": action,
                 }
-        response = requests.post(config.PERSONS_PERMISSIONS_SET, json=data)
+        response = requests.post(config.PERSONS_PERMISSIONS_UPDATE, json=data)
+        response = response.json()
     except Exception as error:
-        response = error
+        import traceback, sys
+        traceback.print_exc(file=sys.stdout)
+        response = str(error)
     return response
