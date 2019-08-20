@@ -33,10 +33,28 @@ class PersonService(EntityService):
         self.repository.save(person)
         return person
 
-    def set_permissions(self, person: Person, permissions: List[str]):
+    def update_permissions(self, person, permissions, action):
+        assert action in ['set', 'add', 'remove']
         assert isinstance(permissions, list), "permissions is not a list!"
-        for permision in permissions:
-            if permision not in self.config['ALL_PERMISSIONS']:
-                raise ValueError(f'Permision {permision} doesn\'t exist')
-        person.permissions = permissions
+        self.valid_permissions(permissions)
+        if action == 'set':
+            person.permissions = permissions
+        elif action == 'add':
+            for permission in permissions:
+                if permission not in person.permissions:
+                    person.permissions.append(permissions)
+        if action == 'remove':
+            for permission in permissions:
+                if permission in person.permissions:
+                    person.permissions.remove(permission)
         self.repository.save(person, overwrite=True)
+
+
+    def valid_permissions(self, permissions):
+        # Comprobar si lo que hay en permissions está en ALL_PERMISSIONS
+        for permission in permissions:
+            if permission not in self.config['ALL_PERMISSIONS']:
+                raise ValueError(f'{permission} is not in {self.config["ALL_PERMISSIONS"]}')
+        return all(permission in self.config['ALL_PERMISSIONS'] for permission in permissions)
+
+
