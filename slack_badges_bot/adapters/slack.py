@@ -71,6 +71,7 @@ class SlackApplication:
                 if not self.person_service.person_byemail(email):
                     person = self.person_service.create_person(slack_id=member.get('id'),
                                       slack_name=member.get('name'),
+                                      real_name=member.get('profile').get('real_name'),
                                       email=email)
                     if member.get('is_owner') or member.get('is_admin'):
                         # Dar todos los permisos

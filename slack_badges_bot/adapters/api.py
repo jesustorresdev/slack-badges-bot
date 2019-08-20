@@ -173,7 +173,7 @@ class WebService:
         return response
 
     async def list_permissions_handler(self, request):
-        return web.json_response(self.config['PERSON_PERMISSIONS'])
+        return web.json_response(self.config['ALL_PERMISSIONS'])
 
     def _setup_routes(self):
         self.app.router.add_post(self.config['ADMIN_BADGES_CREATE'],

@@ -22,12 +22,13 @@ class PersonService(EntityService):
                 return person
         return None
 
-    def create_person(self, *, slack_name: str, slack_id: str, email: str):
+    def create_person(self, *, slack_name: str, slack_id: str, real_name: str, email: str):
         if self.person_byemail(email):
             raise ValueError(f'{email} ya existe!')
         person = Person(id=EntityID.generate_unique_id(),
                         slack_name=slack_name,
                         slack_id=slack_id,
+                        real_name=real_name,
                         email=email)
         self.repository.save(person)
         return person
@@ -35,7 +36,7 @@ class PersonService(EntityService):
     def set_permissions(self, person: Person, permissions: List[str]):
         assert isinstance(permissions, list), "permissions is not a list!"
         for permision in permissions:
-            if permision not in self.config['PERSON_PERMISSIONS']:
+            if permision not in self.config['ALL_PERMISSIONS']:
                 raise ValueError(f'Permision {permision} doesn\'t exist')
         person.permissions = permissions
         self.repository.save(person, overwrite=True)

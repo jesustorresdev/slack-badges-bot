@@ -23,6 +23,7 @@ class Person:
     email: str
     slack_id: str
     slack_name: str
+    real_name: str
     permissions: List[str] = None
 
     @property
