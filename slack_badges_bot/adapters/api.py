@@ -124,7 +124,6 @@ class WebService:
                     return BytesIO(await resp.read())
         raise BadgeImageError(f'WebService.urltobytes: couldn\'t dowload badge image from {url}')
 
-
     async def list_persons_handler(self, request):
         persons = self.person_service.retrieve_all()
         for person in persons:
@@ -159,18 +158,31 @@ class WebService:
                 'required': ['status']
                 }
             )
-    async def set_permissions_handler(self, request_json, request):
+    async def add_permissions_handler(self, request_json, request):
         """
         Handler que recibe un POST con un json indicando el id de la persona
         y los nuevos permisos
         """
         try:
             person = self.person_service.retrieve(request_json['person_id'])
-            self.person_service.set_permissions(person, request_json['permissions'])
-            response = web.json_response({'status': 'ok'})
+            if self.valid_permissions(request_json['permissions']):
+                person.permissions.append(request_json['permissions'])
+                self.person_service.set_permissions(person, person.permissions)
+                response = web.json_response({'status': 'ok'})
+            else:
+                response = web.json_response({
+                    'status':'error',
+                    'error':'invalid permissions'
+                    },
+                    status=400)
         except:
-            response = web.json_response({'status': 'error'})
+            response = web.json_response({'status': 'error'}, status=500)
         return response
+
+    def valid_permissions(self, permission_list):
+        # Todos los permisos de permission_list están en self.config['ALL_PERMISSIONS']
+        return all(p in self.config['ALL_PERMISSIONS'] for p in permission_list)
+
 
     async def list_permissions_handler(self, request):
         return web.json_response(self.config['PERSON_PERMISSIONS'])
@@ -182,8 +194,8 @@ class WebService:
         self.app.router.add_get(self.config['ADMIN_PERSONS_LIST'],
                 self.list_persons_handler)
 
-        self.app.router.add_post(self.config['ADMIN_PERMISSIONS_SET'],
-                self.set_permissions_handler)
+        self.app.router.add_post(self.config['ADMIN_PERMISSIONS_ADD'],
+                self.add_permissions_handler)
 
         self.app.router.add_get(self.config['ADMIN_PERMISSIONS_LIST'],
                 self.list_permissions_handler)
