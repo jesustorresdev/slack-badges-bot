@@ -11,6 +11,14 @@ class EntityService(object):
     def retrieve_ids(self):
         return self.repository.get_all_ids()
 
+    def retrieve_all(self):
+        entities = []
+        for entity_id in self.retrieve_ids():
+            entities.append(self.retrieve(entity_id))
+        return entities
+
+
+
     def open_image(self, badge: Badge) -> BufferedIOBase:
         '''
         Sustituye el atributo image de Badge por un

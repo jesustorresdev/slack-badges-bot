@@ -25,7 +25,10 @@ class DefaultConfig:
     OPENBADGES_ISSUER_DESCRIPTION = 'Herramienta para emitir medallas que une el chat de Slack con el estándar de OpenBadges'
 
 # API de administración
-    CREATE_BADGE_PATH = '/badges/create'
+    ADMIN_BADGES_CREATE = '/badges/create'
+    ADMIN_PERMISSIONS_SET = '/persons/permissions/set'
+    ADMIN_PERMISSIONS_LIST = '/persons/permissions/list'
+    ADMIN_PERSONS_LIST = '/persons/list'
 
 # Rutas de persistencia
     DATA_PATH = '../data'
@@ -39,6 +42,8 @@ class DefaultConfig:
     SLACK_SIGNING_SECRET = os.getenv('SLACK_SIGNING_SECRET')
     SLACK_OAUTH_ACCESS_TOKEN = os.getenv('SLACK_OAUTH_ACCESS_TOKEN')
     SLACK_VERIFY_SECONDS = 5 * 60
+    ALL_PERMISSIONS = ['badges:give', 'badges:list', 'awards.self:list', 'awards.others:list']
+    USER_PERMISSIONS = ['badges:list', 'awards.self:list']
 
     # Ver https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.run_app
     # Para los valores por defecto de estas opciones

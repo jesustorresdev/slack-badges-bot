@@ -13,7 +13,7 @@ def badge(json_file, image_file):
             image_bytes = image_file.read()
             prefix = 'data:image/{};base64,'.format(str(Image.open(image_file).format).lower())
             openbadge_json['image'] = prefix + base64.encodebytes(image_bytes).decode('utf-8')
-        r=requests.post(config.API_URL, json=openbadge_json)
+        r=requests.post(config.BADGES_CREATE, json=openbadge_json)
         return r.text
     except Exception as error:
         return error

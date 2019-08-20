@@ -65,13 +65,19 @@ class SlackApplication:
         loop = asyncio.get_event_loop()
         users_list = loop.run_until_complete(self.users_list())
 
-        for member in users_list['members']:
-            logging.debug(
-                    json.dumps({key:member[key] for key in member if member[key] is not dict},
-                        indent=True)
-                    )
-
-
+        for member in users_list.get('members'):
+            email = member.get('profile').get('email')
+            if email:
+                if not self.person_service.person_byemail(email):
+                    person = self.person_service.create_person(slack_id=member.get('id'),
+                                      slack_name=member.get('name'),
+                                      email=email)
+                    if member.get('is_owner') or member.get('is_admin'):
+                        # Dar todos los permisos
+                        permissions = self.config['ALL_PERMISSIONS']
+                    else:
+                        permissions = self.config['USER_PERMISSIONS']
+                    self.person_service.set_permissions(person, permissions)
 
     async def verify_request(self, request: web.Request):
         #https://api.slack.com/docs/verifying-requests-from-slack
