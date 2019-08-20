@@ -26,7 +26,7 @@ class DefaultConfig:
 
 # API de administración
     ADMIN_BADGES_CREATE = '/badges/create'
-    ADMIN_PERMISSIONS_SET = '/persons/permissions/set'
+    ADMIN_PERMISSIONS_ADD = '/persons/permissions/add'
     ADMIN_PERMISSIONS_LIST = '/persons/permissions/list'
     ADMIN_PERSONS_LIST = '/persons/list'
 
