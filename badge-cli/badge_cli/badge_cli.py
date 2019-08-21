@@ -1,12 +1,9 @@
 import traceback, sys
 import click
-import requests
 import json
-import base64
 import badge_cli.slack_badges_bot_client as api_client
 
 from cachetools import cached, TTLCache
-#from PIL import Image
 
 @click.group()
 @click.option('--apihelp', is_flag=True, help='Solicita ayuda de la API')

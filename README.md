@@ -14,8 +14,8 @@ Interfaz de línea de comandos para crear un badge
 **Uso**
 ```
 $ pipenv shell
-$ badge-cli create [fichero.json] [fichero.png]
-$ badge-cli --help
+$ badgecli create [fichero.json] [fichero.png]
+$ badgecli --help
 ```
 
 -------------------------------------------------
