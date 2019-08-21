@@ -38,12 +38,14 @@ def create(json_file, image_file):
 @cached(TTLCache(maxsize=1, ttl=180))
 def person_byid(person_id):
     persons = api_client.persons()
-    return [person for person in persons if person["id"] == person_id][0]
+    if persons:
+        return [person for person in persons if person["id"] == person_id][0]
 
 @cached(TTLCache(maxsize=1, ttl=180))
 def persons_summary():
     persons = api_client.persons()
-    return {person['id']:person['real_name'] for person in persons}
+    if persons:
+        return {person['id']:person['real_name'] for person in persons}
 
 @cli.command()
 @click.option('--persons', '-p', is_flag=True, default=False, help="Lista de las personas registradas")
@@ -64,7 +66,8 @@ def list(persons, permissions, person_id):
     elif permissions:
         if person_id: # Permisos de una persona concreta
             person = person_byid(person_id)
-            response = {person['id']:person['permissions']}
+            if person:
+                response = {person['id']:person['permissions']}
         else: # Todos los permisos disponibles
             response = api_client.permissions()
         click.echo(json.dumps(response, indent=True))
