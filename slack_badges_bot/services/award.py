@@ -23,8 +23,8 @@ class AwardService(EntityService):
         self.badge_service = badge_service
         self.openbadges = OpenBadges(config)
 
-    def create_award(self, *, slack_name: str, slack_id: str,
-                        email: str, badge_name: str):
+    def create_award(self, *, slack_name, slack_id,
+                        email, badge_name):
         """
         Crea una asociación medalla-persona con la imagen de la medalla [badge_name]
         """
@@ -57,11 +57,7 @@ class AwardService(EntityService):
         return None
 
     def byemail(self, email):
-        award_list = []
-        ids = self.retrieve_ids()
-        for award in [self.retrieve(award_id) for award_id in ids]:
-            if award.person.email == email:
-                award_list.append(award)
+        award_list = [award for award in self.retrieve_all() if award.person.email == email]
         return award_list
 
     #https://github.com/mozilla/openbadges-specification/blob/master/Assertion/latest.md

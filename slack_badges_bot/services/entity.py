@@ -5,7 +5,6 @@ from pathlib import Path
 
 class EntityService(object):
     def retrieve(self, id):
-        logging.debug(f'Retrieving {id}')
         return self.repository.load(id)
 
     def retrieve_ids(self):

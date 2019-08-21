@@ -53,7 +53,8 @@ class SlackApplication:
         self.slackclient = slack.WebClient(token=self.config['SLACK_OAUTH_ACCESS_TOKEN'],
                                             run_async=True)
         self.openbadges = OpenBadges(config)
-        self.errortext = 'Error! :cry:'
+        self.defaulterrortext = 'Error! :cry:'
+        self.errortext = self.defaulterrortext
         self._setup_users()
 
     def _setup_users(self):
@@ -78,7 +79,7 @@ class SlackApplication:
                         permissions = self.config['ALL_PERMISSIONS']
                     else:
                         permissions = self.config['USER_PERMISSIONS']
-                    self.person_service.set_permissions(person, permissions)
+                    self.person_service.update_permissions(person, permissions, action='set')
 
     async def verify_request(self, request: web.Request):
         #https://api.slack.com/docs/verifying-requests-from-slack
@@ -115,23 +116,30 @@ class SlackApplication:
             if request_post['command'] != '/badges':
                 raise web.HTTPBadRequest
 
+            user = self.person_service.byslack_id(request_post['user_id'])
+
             text = request_post['text'].strip()
             if text.startswith('list all'):
-                response = self.list_all_badges()
+                response = self.list_all_badges(user)
             elif text.startswith('list'):
-                response = await self.list_user_badges(text.replace('list','',1))
+                response = await self.list_user_badges(text.replace('list','',1), user)
             elif text.startswith('give'):
-                response = await self.give_badge(text.replace('give','',1))
+                response = await self.give_badge(text.replace('give','',1), user)
             elif text.startswith('help'):
                 response = self.help_info()
             else:
-                response = web.Response(text="Ese comando no existe!")
+                response = web.Response(text="No puedes ejecutar ese comando!")
         except:
             traceback.print_exc(file=sys.stdout)
             response = web.Response(text=self.errortext)
+            self.errortext = self.defaulterrortext
         return response
 
-    def list_all_badges(self):
+    def list_all_badges(self, user):
+        if not self.has_permission(user, 'badges:list'):
+            self.errortext = f'No tienes permiso para listar medallas'
+            raise PermissionError
+
         badge_ids = self.badge_service.retrieve_ids()
         badges = [self.badge_service.retrieve(badge_id) for badge_id in badge_ids]
         s = 's' if len(badges) > 1 else ''
@@ -143,10 +151,28 @@ class SlackApplication:
                 },\
                 status=200)
 
-    async def list_user_badges(self, text):
+    def has_permission(self, person, permission):
+        return self.person_service.has_permission(person, permission)
+
+    def is_allowed(self, *, user, action, resource, owner):
+        if self.has_permission(user, resource + ':' + action + ':others'):
+            return True
+        if owner == user:
+            if self.has_permission(user, resource + ':' + action + ':self'):
+                return True
+        return False
+
+
+    async def list_user_badges(self, text, user):
         slack_username  = text
         slack_id = await self.slack_id(slack_username)
         slack_email = await self.slack_email(slack_id)
+        owner = self.person_service.byemail(slack_email)
+        if not self.is_allowed(user=user, action='list',
+                resource='awards', owner=owner):
+            self.errortext = f'No tienes permiso para listar las medallas de {owner.slack_name}'
+            raise PermissionError
+
         awards = self.award_service.byemail(slack_email)
         return web.json_response(\
                 {
@@ -155,7 +181,7 @@ class SlackApplication:
                 },\
                 status=200)
 
-    async def give_badge(self, text):
+    async def give_badge(self, text, user):
         '''
         Metodo para crear asociaciones
         medalla-persona. Genera excepciones en caso
@@ -170,6 +196,12 @@ class SlackApplication:
         if not email:
             raise ValueError(f'Email de usuario no encontrado {slack_id}')
 
+        award_owner = self.person_service.byemail(email)
+        if not self.is_allowed(user=user, action='create',
+                resource='awards', owner=award_owner):
+            self.errortext = 'no tienes permiso para emitir la medalla'
+            raise PermissionError
+
         # Crear asociación
         award = self.award_service.issue(slack_name=slack_username,
                                          slack_id=slack_id,
@@ -182,6 +214,7 @@ class SlackApplication:
                     "blocks": self.blockbuilder.award_block(award),
                 },\
                 status=200)
+
 
 
     #https://api.slack.com/methods/users.list

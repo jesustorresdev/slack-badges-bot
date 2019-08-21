@@ -148,8 +148,7 @@ class WebService:
                         'type': 'array',
                         'items': {
                             'type': 'string'
-                            },
-                        'minItems': 1
+                            }
                         }
                     },
                 'required': ['person_id', 'permissions'],

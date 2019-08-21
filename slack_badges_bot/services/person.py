@@ -13,12 +13,23 @@ class PersonService(EntityService):
         self.config = config
         self.repository = entity_repository_factory(Person)
 
+#TODO: Corregir este nombre en todos lados
     def person_byemail(self, email):
         ids = self.retrieve_ids()
         email = email.lower().replace(" ", "")
         for id in ids:
             person = self.retrieve(id)
             if email == person.email:
+                return person
+        return None
+
+    def byemail(self, email):
+        return self.person_byemail(email)
+
+    def byslack_id(self, slack_id):
+        for person_id in self.retrieve_ids():
+            person = self.retrieve(person_id)
+            if person.slack_id == slack_id:
                 return person
         return None
 
@@ -42,7 +53,7 @@ class PersonService(EntityService):
         elif action == 'add':
             for permission in permissions:
                 if permission not in person.permissions:
-                    person.permissions.append(permissions)
+                    person.permissions.append(permission)
         if action == 'remove':
             for permission in permissions:
                 if permission in person.permissions:
@@ -54,7 +65,9 @@ class PersonService(EntityService):
         # Comprobar si lo que hay en permissions está en ALL_PERMISSIONS
         for permission in permissions:
             if permission not in self.config['ALL_PERMISSIONS']:
-                raise ValueError(f'{permission} is not in {self.config["ALL_PERMISSIONS"]}')
+                raise ValueError(f'{permission} is not one of {self.config["ALL_PERMISSIONS"]}')
         return all(permission in self.config['ALL_PERMISSIONS'] for permission in permissions)
 
+    def has_permission(self, person, permission):
+        return (permission in person.permissions)
 
