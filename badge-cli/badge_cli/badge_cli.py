@@ -53,29 +53,24 @@ def list(persons, permissions, person_id):
     """
     Listar personas y permisos.
     """
-    try:
-        if persons:
-            persons = api_client.persons()
-            if person_id: # Toda la informacion de una persona en concreta
-                response = person_byid(person_id)
-            else: # Información general de todas las personas
-                response = persons_summary()
-        elif permissions:
-            if person_id: # Permisos de una persona concreta
-                person = person_byid(person_id)
-                response = {person['id']:person['permissions']}
-            else: # Todos los permisos disponibles
-                response = api_client.permissions()
-
-    except Exception as error:
-        traceback.print_exc(file=sys.stdout)
-        response = str(error)
-
-    #if isinstance(response, dict):
-    #    response = json.dumps(response,
-    #            indent=True,
-    #            ensure_ascii=False).encode("utf-8")
-    click.echo(response)
+    response = None
+    if persons:
+        persons = api_client.persons()
+        if person_id: # Toda la informacion de una persona en concreta
+            response = person_byid(person_id)
+        else: # Información general de todas las personas
+            response = persons_summary()
+        click.echo(json.dumps(response, indent=True))
+    elif permissions:
+        if person_id: # Permisos de una persona concreta
+            person = person_byid(person_id)
+            response = {person['id']:person['permissions']}
+        else: # Todos los permisos disponibles
+            response = api_client.permissions()
+        click.echo(json.dumps(response, indent=True))
+    else: #mostrar ayuda
+        with click.Context(list) as ctx:
+            click.echo(list.get_help(ctx))
 
 @cli.command()
 @click.option('--set', '-s', 'set_', is_flag=True, help="Especificar los permisos de una persona")
@@ -100,8 +95,8 @@ def perm(set_, add_, remove_, person_id, permissions_list):
         action = 'no action specified'
     permissions_list = [permission for permission in permissions_list]
     response = api_client.update_permissions(person_id, permissions_list, action)
-    click.echo(response)
-
+    if response:
+        click.echo(response)
 """
 badgecli create oro.json oro.png
 badgecli create oro.json
