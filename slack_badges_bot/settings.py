@@ -1,9 +1,9 @@
 """Configuración por defecto de la aplicación.
 """
 import os
-import secrets
 
 from pathlib import Path
+from getpass import getpass
 
 
 __author__ = 'Jesús Torres'
@@ -30,8 +30,8 @@ class DefaultConfig:
     ADMIN_PERMISSIONS_UPDATE = '/persons/permissions/update'
     ADMIN_PERMISSIONS_LIST = '/persons/permissions/list'
     ADMIN_PERSONS_LIST = '/persons/list'
-    ADMIN_USER = secrets.admin_user
-    ADMIN_PASSWORD = secrets.admin_password
+    ADMIN_USER = 'admin'
+    ADMIN_PASSWORD = getpass('Set app admin password: ')
 
 # Rutas de persistencia
     DATA_PATH = '../data'
