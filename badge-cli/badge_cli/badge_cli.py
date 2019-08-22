@@ -1,7 +1,14 @@
-import traceback, sys
+import os
+if not os.path.exists('config.ini'):
+    create_defaultconfig()
+
 import click
 import json
 import badge_cli.slack_badges_bot_client as api_client
+import configparser
+import getpass
+import bcrypt
+import sys
 
 from cachetools import cached, TTLCache
 
@@ -96,6 +103,56 @@ def perm(set_, add_, remove_, person_id, permissions_list):
     response = api_client.update_permissions(person_id, permissions_list, action)
     if response:
         click.echo(response)
+
+@cli.command()
+@click.option('--user', '-u', is_flag=True, help="Nombre de usuario")
+@click.option('--password', '-p', is_flag=True, help="Contraseña del administrador")
+@click.option('--server', '-s', is_flag=True, help="Ruta de administracion del servidor")
+@click.option('--list', '-l', 'list_', is_flag=True, help="mostrar toda la config")
+@click.argument('parameter', type=str, required=False)
+def config(user, password, server, list_, parameter):
+    """
+    Configurar parámetros de la línea de comandos
+    """
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    client = config['client']
+    if user:
+        user = input("User: ")
+        client['user'] = user
+
+    if password:
+        pw = getpass.getpass()
+        client['password'] = bcrypt.hashpw(pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+    if server:
+        server = input("Server: ")
+        config['client'] = {'server': server}
+
+    if user or password or server:
+        with open('config.ini', 'w') as f:
+            config.write(f)
+
+    if list_:
+        config.write(sys.stdout)
+
+def create_defaultconfig():
+    click.echo("Creando configuracion")
+    config = configparser.ConfigParser()
+    config['client'] = {}
+    client = config['client']
+    client['user'] = 'admin'
+    client['server']  = 'localhost:5000/api'
+    with open('config.ini', 'w') as f:
+        config.write(f)
+
+
+
+"""
+badgecli config --user [USUARIO]
+badgecli config --password [CONSTRASEÑA]
+badgecli config --server [SERVIDOR]
+"""
 """
 badgecli create oro.json oro.png
 badgecli create oro.json

@@ -17,6 +17,7 @@ openbadges-bakery = {git = "https://github.com/concentricsky/openbadges-bakery",
 cachetools = "*"
 asyncache = "*"
 aiohttp-basicauth-middleware = "*"
+bcrypt = "*"
 
 [requires]
 python_version = "3.7"

@@ -14,7 +14,7 @@ def create_badge(json_file, image_file):
             image_bytes = image_file.read()
             prefix = 'data:image/{};base64,'.format(str(Image.open(image_file).format).lower())
             openbadge_json['image'] = prefix + base64.encodebytes(image_bytes).decode('utf-8')
-        r=requests.post(config.BADGES_CREATE, json=openbadge_json)
+        r=requests.post(config.BADGES_CREATE, json=openbadge_json, auth=config.AUTH)
         return r.text
     except Exception as error:
         click.echo(error)
@@ -22,19 +22,18 @@ def create_badge(json_file, image_file):
 
 def persons():
     try:
-        response = requests.get(config.PERSONS_LIST)
+        response = requests.get(config.PERSONS_LIST, auth=config.AUTH)
         if response.status_code != 200:
             raise Exception(response.status_code)
         response = response.json()
     except Exception as error:
-        click.echo(error)
+        click.echo(response.text)
         response = None
     return response
 
-
 def permissions(person_id=None):
     try:
-        response = requests.get(config.PERMISSIONS_LIST)
+        response = requests.get(config.PERMISSIONS_LIST, auth=config.AUTH)
         if response.status_code != 200:
             raise Exception(response.status_code)
         response = response.json()
@@ -50,7 +49,7 @@ def update_permissions(person_id, permission_list, action):
                 "permissions": permission_list,
                 "action": action,
                 }
-        response = requests.post(config.PERSONS_PERMISSIONS_UPDATE, json=data)
+        response = requests.post(config.PERSONS_PERMISSIONS_UPDATE, json=data, auth=config.AUTH)
         response = response.json()
     except Exception as error:
         click.echo(error)
