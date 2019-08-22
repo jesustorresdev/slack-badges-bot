@@ -1,6 +1,7 @@
 """Configuración por defecto de la aplicación.
 """
 import os
+import secrets
 
 from pathlib import Path
 
@@ -14,7 +15,7 @@ class DefaultConfig:
     DEBUG = True
 
 # API de openbadges
-    API_URL = 'http://vituin-chat.iaas.ull.es/openbadges'
+    API_URL = 'https://vituin-chat.iaas.ull.es/openbadges'
     API_BADGES = '/badges/{badge_id}/{requested_data}'
     API_AWARDS = '/awards/{award_id}/{requested_data}'
     API_ISSUER = '/issuer'
@@ -29,6 +30,8 @@ class DefaultConfig:
     ADMIN_PERMISSIONS_UPDATE = '/persons/permissions/update'
     ADMIN_PERMISSIONS_LIST = '/persons/permissions/list'
     ADMIN_PERSONS_LIST = '/persons/list'
+    ADMIN_USER = secrets.admin_user
+    ADMIN_PASSWORD = secrets.admin_password
 
 # Rutas de persistencia
     DATA_PATH = '../data'

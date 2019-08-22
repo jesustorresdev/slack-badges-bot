@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b93bea35bf1821a40b5fc47d16166c3042ae0c438fee2b8cb1c30d628d27d9d8"
+            "sha256": "e7aa707c5a6d8fc9c40a9ee41481462c4cd61d3716c8352d7fd3d8e3bacaee5f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -43,6 +43,13 @@
             ],
             "index": "pypi",
             "version": "==3.5.4"
+        },
+        "aiohttp-basicauth-middleware": {
+            "hashes": [
+                "sha256:fb4ff3b5733ab4475dc21ecb30636542ed74c12e9eb711ac77b61795f25eb104"
+            ],
+            "index": "pypi",
+            "version": "==1.1.2"
         },
         "aiohttp-validate": {
             "hashes": [
@@ -104,6 +111,12 @@
                 "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
             ],
             "version": "==7.0"
+        },
+        "http-basic-auth": {
+            "hashes": [
+                "sha256:ed81a9869dee608478e6477f6f3485b3b04e5378a8685a9b9170f0a7a9e90d96"
+            ],
+            "version": "==1.2.0"
         },
         "idna": {
             "hashes": [
