@@ -7,7 +7,6 @@ import json
 import badge_cli.slack_badges_bot_client as api_client
 import configparser
 import getpass
-import bcrypt
 import sys
 
 from cachetools import cached, TTLCache
@@ -123,7 +122,7 @@ def config(user, password, server, list_, parameter):
 
     if password:
         pw = getpass.getpass()
-        client['password'] = bcrypt.hashpw(pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        client['password'] = pw
 
     if server:
         server = input("Server: ")
