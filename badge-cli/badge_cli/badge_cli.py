@@ -54,7 +54,6 @@ def list(persons, permissions, person_id):
     """
     response = None
     if persons:
-        persons = api_client.persons()
         if person_id: # Toda la informacion de una persona en concreta
             response = person_byid(person_id)
         else: # Información general de todas las personas
