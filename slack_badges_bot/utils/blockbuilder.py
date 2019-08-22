@@ -12,7 +12,7 @@ class BlockBuilder:
 
 
     def award_block(self, award):
-        user = award.person.slack_name
+        user = '<@' + award.person.slack_id + '>'
         badge = award.badge.name
         return [
                 {
@@ -29,7 +29,7 @@ class BlockBuilder:
                         "text": f"{badge}",
                         "emoji": True
                         },
-                    "image_url": self.config['AWARDS_IMAGE_URL'].format(award.id_str),
+                    "image_url": self.config['AWARDS_URL'].format(award_id=award.id_str, requested_data='image'),
                     "alt_text": f"{badge}"
                     }
                 ]
@@ -47,7 +47,7 @@ class BlockBuilder:
                     }
                 ]
         for badge in badges:
-            image_url = self.config['BADGES_IMAGE_URL'].format(badge.id_str)
+            image_url = self.config['BADGES_URL'].format(badge_id=badge.id_str, requested_data='image')
             badge_block = self._badge_block(name=badge.name,
                                            description=badge.description,
                                            criteria=badge.criteria,
@@ -102,7 +102,7 @@ class BlockBuilder:
                     }
                 ]
         for award in awards:
-            image_url = self.config['AWARDS_IMAGE_URL'].format(award.id_str)
+            image_url = self.config['AWARDS_URL'].format(award_id=award.id_str, requested_data='image')
             badge_block = self._badge_block(name=award.badge.name,
                                            description=award.badge.description,
                                            criteria=award.badge.criteria,

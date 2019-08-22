@@ -23,6 +23,8 @@ class Person:
     email: str
     slack_id: str
     slack_name: str
+    real_name: str
+    permissions: List[str] = field(default_factory=list)
 
     @property
     def id_str(self):
@@ -67,15 +69,6 @@ class Award:
     @property
     def id_str(self):
         return str(self.id.hex)
-
-#@dataclass
-#class Issuer:
-#    id: EntityID
-#    name: str
-#    url: str
-#    description: str
-#    revocationList: dict
-
 
 if __name__ == '__main__': # Probando
     pass

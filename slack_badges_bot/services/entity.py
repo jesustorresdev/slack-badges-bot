@@ -5,11 +5,18 @@ from pathlib import Path
 
 class EntityService(object):
     def retrieve(self, id):
-        logging.debug(f'Retrieving {id}')
         return self.repository.load(id)
 
     def retrieve_ids(self):
         return self.repository.get_all_ids()
+
+    def retrieve_all(self):
+        entities = []
+        for entity_id in self.retrieve_ids():
+            entities.append(self.retrieve(entity_id))
+        return entities
+
+
 
     def open_image(self, badge: Badge) -> BufferedIOBase:
         '''
