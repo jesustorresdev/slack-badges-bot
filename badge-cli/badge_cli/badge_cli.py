@@ -1,6 +1,12 @@
 import os
 if not os.path.exists('config.ini'):
-    create_defaultconfig()
+    config = configparser.ConfigParser()
+    config['client'] = {}
+    client = config['client']
+    client['user'] = 'admin'
+    client['server']  = 'localhost:5000/api'
+    with open('config.ini', 'w') as f:
+        config.write(f)
 
 import click
 import json
@@ -134,30 +140,3 @@ def config(user, password, server, list_, parameter):
 
     if list_:
         config.write(sys.stdout)
-
-def create_defaultconfig():
-    click.echo("Creando configuracion")
-    config = configparser.ConfigParser()
-    config['client'] = {}
-    client = config['client']
-    client['user'] = 'admin'
-    client['server']  = 'localhost:5000/api'
-    with open('config.ini', 'w') as f:
-        config.write(f)
-
-
-
-"""
-badgecli config --user [USUARIO]
-badgecli config --password [CONSTRASEÑA]
-badgecli config --server [SERVIDOR]
-"""
-"""
-badgecli create oro.json oro.png
-badgecli create oro.json
-badgecli list --persons
-badgecli list --persons person_id
-badgecli list --permissions
-badgecli list --permissions person_id
-badgecli perm --set
-"""
