@@ -1,17 +1,18 @@
 import os
+import configparser
 if not os.path.exists('config.ini'):
     config = configparser.ConfigParser()
     config['client'] = {}
     client = config['client']
     client['user'] = 'admin'
-    client['server']  = 'localhost:5000/api'
+    client['password'] = 'password'
+    client['server']  = 'http://localhost:5000/api'
     with open('config.ini', 'w') as f:
         config.write(f)
 
 import click
 import json
 import badge_cli.slack_badges_bot_client as api_client
-import configparser
 import getpass
 import sys
 
@@ -132,7 +133,7 @@ def config(user, password, server, list_, parameter):
 
     if server:
         server = input("Server: ")
-        config['client'] = {'server': server}
+        config['server'] = server
 
     if user or password or server:
         with open('config.ini', 'w') as f:
