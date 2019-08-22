@@ -1,7 +1,20 @@
-import traceback, sys
+import os
+import configparser
+if not os.path.exists('config.ini'):
+    config = configparser.ConfigParser()
+    config['client'] = {}
+    client = config['client']
+    client['user'] = 'admin'
+    client['password'] = 'password'
+    client['server']  = 'http://localhost:5000/api'
+    with open('config.ini', 'w') as f:
+        config.write(f)
+
 import click
 import json
 import badge_cli.slack_badges_bot_client as api_client
+import getpass
+import sys
 
 from cachetools import cached, TTLCache
 
@@ -96,12 +109,35 @@ def perm(set_, add_, remove_, person_id, permissions_list):
     response = api_client.update_permissions(person_id, permissions_list, action)
     if response:
         click.echo(response)
-"""
-badgecli create oro.json oro.png
-badgecli create oro.json
-badgecli list --persons
-badgecli list --persons person_id
-badgecli list --permissions
-badgecli list --permissions person_id
-badgecli perm --set
-"""
+
+@cli.command()
+@click.option('--user', '-u', is_flag=True, help="Nombre de usuario")
+@click.option('--password', '-p', is_flag=True, help="Contraseña del administrador")
+@click.option('--server', '-s', is_flag=True, help="Ruta de administracion del servidor")
+@click.option('--list', '-l', 'list_', is_flag=True, help="mostrar toda la config")
+@click.argument('parameter', type=str, required=False)
+def config(user, password, server, list_, parameter):
+    """
+    Configurar parámetros de la línea de comandos
+    """
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    client = config['client']
+    if user:
+        user = input("User: ")
+        client['user'] = user
+
+    if password:
+        pw = getpass.getpass()
+        client['password'] = pw
+
+    if server:
+        server = input("Server: ")
+        config['server'] = server
+
+    if user or password or server:
+        with open('config.ini', 'w') as f:
+            config.write(f)
+
+    if list_:
+        config.write(sys.stdout)

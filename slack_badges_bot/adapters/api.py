@@ -9,6 +9,8 @@ import re
 
 from aiohttp import web
 from aiohttp import ClientSession
+from aiohttp_basicauth_middleware import basic_auth_middleware
+
 from pathlib import Path
 from io import BytesIO
 from dataclasses import asdict
@@ -195,3 +197,10 @@ class WebService:
 
         self.app.router.add_get(self.config['ADMIN_PERMISSIONS_LIST'],
                 self.list_permissions_handler)
+        self.app.middlewares.append(
+                basic_auth_middleware(
+                    ('/',),
+                    {self.config['ADMIN_USER']:self.config['ADMIN_PASSWORD']}
+                    )
+                )
+
