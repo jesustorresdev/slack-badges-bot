@@ -1,6 +1,7 @@
 """Configuración por defecto de la aplicación.
 """
 import os
+import secrets
 
 from pathlib import Path
 from getpass import getpass
@@ -22,8 +23,8 @@ class DefaultConfig:
     BADGES_URL = API_URL + API_BADGES
     AWARDS_URL = API_URL + API_AWARDS
     ISSUER_URL = API_URL + API_ISSUER
-    OPENBADGES_ISSUER_NAME = 'Slack Badges Bot'
-    OPENBADGES_ISSUER_DESCRIPTION = 'Herramienta para emitir medallas que une el chat de Slack con el estándar de OpenBadges'
+    OPENBADGES_ISSUER_NAME = 'University of La Laguna SlackBot'
+    OPENBADGES_ISSUER_DESCRIPTION = 'Herramienta para emitir medallas con las especificaciones de Open Badges'
 
 # API de administración
     ADMIN_BADGES_CREATE = '/badges/create'
@@ -31,7 +32,7 @@ class DefaultConfig:
     ADMIN_PERMISSIONS_LIST = '/persons/permissions/list'
     ADMIN_PERSONS_LIST = '/persons/list'
     ADMIN_USER = 'admin'
-    ADMIN_PASSWORD = getpass('Set app admin password: ')
+    ADMIN_PASSWORD = secrets.ADMIN_PASSWORD
 
 # Rutas de persistencia
     DATA_PATH = '../data'
@@ -43,8 +44,8 @@ class DefaultConfig:
     BADGE_MIN_CRITERIA = 1
 
 # Parámetros de slack
-    SLACK_SIGNING_SECRET = os.getenv('SLACK_SIGNING_SECRET')
-    SLACK_OAUTH_ACCESS_TOKEN = os.getenv('SLACK_OAUTH_ACCESS_TOKEN')
+    SLACK_SIGNING_SECRET = secrets.SLACK_SIGNING_SECRET
+    SLACK_OAUTH_ACCESS_TOKEN = secrets.SLACK_OAUTH_ACCESS_TOKEN
     SLACK_VERIFY_SECONDS = 5 * 60
 
 # Sistema de permisos
