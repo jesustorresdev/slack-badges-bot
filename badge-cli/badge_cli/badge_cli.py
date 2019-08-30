@@ -133,7 +133,7 @@ def config(user, password, server, list_, parameter):
 
     if server:
         server = input("Server: ")
-        config['server'] = server
+        client['server'] = server
 
     if user or password or server:
         with open('config.ini', 'w') as f:
