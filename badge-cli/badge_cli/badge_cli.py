@@ -71,7 +71,7 @@ def list(persons, permissions, person_id):
             response = person_byid(person_id)
         else: # Información general de todas las personas
             response = persons_summary()
-        click.echo(json.dumps(response, indent=True))
+        click.echo(json.dumps(response, indent=True, ensure_ascii=False))
     elif permissions:
         if person_id: # Permisos de una persona concreta
             person = person_byid(person_id)
@@ -79,7 +79,7 @@ def list(persons, permissions, person_id):
                 response = {person['id']:person['permissions']}
         else: # Todos los permisos disponibles
             response = api_client.permissions()
-        click.echo(json.dumps(response, indent=True))
+        click.echo(json.dumps(response, indent=True, ensure_ascii=False))
     else: #mostrar ayuda
         with click.Context(list) as ctx:
             click.echo(list.get_help(ctx))
