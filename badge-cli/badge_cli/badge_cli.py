@@ -91,7 +91,7 @@ def list(persons, permissions, person_id):
 @click.argument('person_id')
 @click.argument('permissions_list', nargs=-1)
 def perm(set_, add_, remove_, person_id, permissions_list):
-    """Modificar los permisos de una ersona.
+    """Modificar los permisos de una persona.
 
     Más informacion en la página de la wiki:
 
