@@ -8,7 +8,6 @@ verify_ssl = true
 [packages]
 aiohttp = "*"
 punq = "*"
-pillow = "*"
 #aiohttp-validate = {editable = true,git = "https://github.com/alu0100832211/aiohttp_validate"}
 badge-cli = {editable = true,path = "./badge-cli"}
 aiohttp-validate = "*"
@@ -18,6 +17,7 @@ cachetools = "*"
 asyncache = "*"
 aiohttp-basicauth-middleware = "*"
 bcrypt = "*"
+pillow = ">=6.2.0"
 
 [requires]
 python_version = "3.7"
